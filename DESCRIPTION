@@ -23,6 +23,7 @@ Suggests:
     mockery,
     pkgdepends,
     remotes,
+    renv,
     testthat,
     withr
 Language: en-GB

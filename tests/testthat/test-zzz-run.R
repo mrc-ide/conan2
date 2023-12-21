@@ -34,3 +34,25 @@ test_that("can run an automatic installation", {
   withr::with_dir(path, conan_run(cfg))
   expect_true(file.exists(file.path(path, "lib", "R6")))
 })
+
+
+test_that("can run an renv installation", {
+  path <- withr::local_tempdir()
+  writeLines("library(R6)", file.path(path, "code.R"))
+  res <- withr::with_dir(path, callr::r(function() {
+    renv::init()
+    install.packages("R6")
+    renv::snapshot()
+    list(pkgs = .packages(TRUE), libs = .libPaths())
+  }))
+
+  path_lib <- "lib"
+  path_bootstrap <- bootstrap_library("renv")
+  cfg <- conan_configure("renv", path = path, path_lib = path_lib,
+                         path_bootstrap = path_bootstrap,
+                         show_log = FALSE)
+  withr::with_dir(path, conan_run(cfg))
+
+  expect_true(file.exists(file.path(path, "lib", "R6")))
+  expect_true(file.exists(file.path(path, "lib", "renv")))
+})

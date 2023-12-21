@@ -65,6 +65,8 @@ conan_configure <- function(method, ..., path_lib, path_bootstrap,
       assert_scalar_character(args$refs, "refs", call = rlang::current_env())
     }
     assert_scalar_character(args$policy, "policy", call = rlang::current_env())
+  } else if (method == "renv") {
+    valid_args <- NULL
   } else if (method == "auto") {
     valid_args <- NULL
   } else {
@@ -115,7 +117,9 @@ conan_configure <- function(method, ..., path_lib, path_bootstrap,
 
 
 detect_method <- function(path, call = NULL) {
-  if (file.exists(file.path(path, "provision.R"))) {
+  if (using_renv()) {
+    "renv"
+  } else if (file.exists(file.path(path, "provision.R"))) {
     "script"
   } else if (file.exists(file.path(path, "pkgdepends.txt"))) {
     "pkgdepends"
