@@ -10,8 +10,6 @@ conan_configure(
   path_lib,
   path_bootstrap,
   delete_first = FALSE,
-  show_log = TRUE,
-  poll = 1,
   path = "."
 )
 }
@@ -31,10 +29,6 @@ are using. For "script" this is just "remotes", but for
 
 \item{delete_first}{Should we delete the library before installing
 into it?}
-
-\item{show_log}{Should we show the log as the installation runs?}
-
-\item{poll}{Polling interval for logs in seconds}
 
 \item{path}{Path to the root where you would run conan from;
 typically this is the same path is the root of the project,

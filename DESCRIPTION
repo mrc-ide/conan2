@@ -1,6 +1,6 @@
 Package: conan2
 Title: Conan the Librarian
-Version: 1.9.90
+Version: 1.9.91
 Authors@R: c(person("Rich", "FitzJohn", role = c("aut", "cre"),
                     email = "rich.fitzjohn@gmail.com"),
              person("Imperial College of Science, Technology and Medicine",

@@ -28,10 +28,6 @@
 ##' @param delete_first Should we delete the library before installing
 ##'   into it?
 ##'
-##' @param show_log Should we show the log as the installation runs?
-##'
-##' @param poll Polling interval for logs in seconds
-##'
 ##' @param path Path to the root where you would run conan from;
 ##'   typically this is the same path is the root of the project,
 ##'   often as the working directory.
@@ -41,8 +37,7 @@
 ##'
 ##' @export
 conan_configure <- function(method, ..., path_lib, path_bootstrap,
-                            delete_first = FALSE, show_log = TRUE,
-                            poll = 1, path = ".") {
+                            delete_first = FALSE, path = ".") {
   if (is.null(method)) {
     method <- detect_method(path, call = rlang::current_env())
   }
@@ -105,8 +100,6 @@ conan_configure <- function(method, ..., path_lib, path_bootstrap,
   args$path_lib <- path_lib
   args$path_bootstrap <- assert_scalar_character(path_bootstrap)
   args$delete_first <- assert_scalar_logical(delete_first)
-  args$show_log <- assert_scalar_logical(show_log)
-  args$poll <- assert_scalar_numeric(poll)
 
   class(args) <- "conan_config"
 
