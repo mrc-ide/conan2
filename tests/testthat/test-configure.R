@@ -117,6 +117,17 @@ test_that("prefer script over pkgdepends", {
 })
 
 
+test_that("prefer renv the most", {
+  path <- withr::local_tempdir()
+  mock_using_renv <- mockery::mock(TRUE, cycle = TRUE)
+  mockery::stub(detect_method, "using_renv", mock_using_renv)
+  expect_equal(detect_method(path), "renv")
+  file.create(file.path(path, "pkgdepends.txt"))
+  file.create(file.path(path, "provision.R"))
+  expect_equal(detect_method(path), "renv")
+})
+
+
 test_that("can fall back on automatic installation", {
   path <- withr::local_tempdir()
   env <- list(packages = c("apple", "banana"))

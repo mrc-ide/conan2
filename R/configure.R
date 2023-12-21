@@ -117,7 +117,7 @@ conan_configure <- function(method, ..., path_lib, path_bootstrap,
 
 
 detect_method <- function(path, call = NULL) {
-  if (using_renv()) {
+  if (using_renv(path)) {
     "renv"
   } else if (file.exists(file.path(path, "provision.R"))) {
     "script"
