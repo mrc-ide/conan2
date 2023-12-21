@@ -21,6 +21,21 @@ conan_run <- function(config, show_log = TRUE) {
   path_script <- file.path(path, "conan.R")
   path_log <- file.path(path, "log")
   conan_write(config, path_script)
+  if (config$method == "renv") {
+    ## This all plays quite poorly with callr because it does a great
+    ## job of setting libPaths for us, after renv has finished setting
+    ## up the libPaths, so we never end up with a loaded version!
+    ##
+    ## I've confirmed that we can disable autoload by setting one of
+    ## these:
+    ##
+    ## RENV_AUTOLOADER_ENABLED
+    ## RENV_ACTIVATE_PROJECT
+    ## RENV_CONFIG_AUTOLOADER_ENABLED
+    ##
+    ## To anything other than true/t/1 (case insensitive).
+    withr::local_envvar(RENV_AUTOLOADER_ENABLED = "FALSE")
+  }
   callr::rscript(path_script, stdout = path_log, stderr = path_log,
                  show = show_log)
   invisible()
