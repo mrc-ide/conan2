@@ -9,8 +9,6 @@ test_that("can create basic configuration", {
   expect_equal(cfg$path_lib, "path/lib")
   expect_equal(cfg$path_bootstrap, "path/bootstrap")
   expect_false(cfg$delete_first)
-  expect_true(cfg$show_log)
-  expect_equal(cfg$poll, 1)
 })
 
 

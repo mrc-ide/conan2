@@ -5,9 +5,12 @@
 ##'
 ##' @inheritParams conan_write
 ##'
+##' @param show_log Show output from running the script (passed
+##'   through to [callr::rscript] as `show`)
+##'
 ##' @return Nothing
 ##' @export
-conan_run <- function(config) {
+conan_run <- function(config, show_log = TRUE) {
   ## TODO: this *must* be called from the same directory passed
   ## through to conan_configure, which is weird.
   path <- tempfile(pattern = "conan")
@@ -34,7 +37,7 @@ conan_run <- function(config) {
     withr::local_envvar(RENV_AUTOLOADER_ENABLED = "FALSE")
   }
   callr::rscript(path_script, stdout = path_log, stderr = path_log,
-                 show = config$show_log)
+                 show = show_log)
   invisible()
 }
 

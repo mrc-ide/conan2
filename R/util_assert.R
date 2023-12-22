@@ -27,26 +27,10 @@ assert_logical <- function(x, name = deparse(substitute(x)), arg = name,
 }
 
 
-assert_numeric <- function(x, name = deparse(substitute(x)), arg = name,
-                           call = NULL) {
-  if (!is.numeric(x)) {
-    cli::cli_abort("'{name}' must be numeric", call = call, arg = arg)
-  }
-  invisible(x)
-}
-
-
 assert_scalar_character <- function(x, name = deparse(substitute(x)),
                                     arg = name, call = NULL) {
   assert_scalar(x, name, arg = arg, call = call)
   assert_character(x, name, arg = arg, call = call)
-}
-
-
-assert_scalar_numeric <- function(x, name = deparse(substitute(x)),
-                                    arg = name, call = NULL) {
-  assert_scalar(x, name, arg = arg, call = call)
-  assert_numeric(x, name, arg = arg, call = call)
 }
 
 

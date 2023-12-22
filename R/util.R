@@ -23,19 +23,6 @@ read_string <- function(path) {
 }
 
 
-throttle <- function(interval) {
-  last <- Sys.time() - interval
-  function(expr) {
-    wait <- interval - (Sys.time() - last)
-    if (wait > 0) {
-      Sys.sleep(wait)
-    }
-    last <<- Sys.time()
-    force(expr)
-  }
-}
-
-
 squote <- function(x) {
   sprintf("'%s'", x)
 }
