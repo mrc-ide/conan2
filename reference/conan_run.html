@@ -18,7 +18,7 @@ process."><meta property="og:image" content="/logo.png"><!-- mathjax --><script 
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">conan2</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.9.90</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.9.91</span>
       </span>
     </div>
 
@@ -52,13 +52,18 @@ process.</p>
     </div>
 
     <div id="ref-usage">
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">conan_run</span><span class="op">(</span><span class="va">config</span><span class="op">)</span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">conan_run</span><span class="op">(</span><span class="va">config</span>, show_log <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div id="arguments">
     <h2>Arguments</h2>
     <dl><dt>config</dt>
 <dd><p>Conan config, from <code><a href="conan_configure.html">conan_configure()</a></code></p></dd>
+
+
+<dt>show_log</dt>
+<dd><p>Show output from running the script (passed
+through to <a href="https://callr.r-lib.org/reference/rscript.html" class="external-link">callr::rscript</a> as <code>show</code>)</p></dd>
 
 </dl></div>
     <div id="value">
