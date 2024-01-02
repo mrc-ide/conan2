@@ -51,7 +51,7 @@ name of the script to run, defaults to "provision.R"
 a character vector of references (rather than reading from the
 file \code{pkgdepends.txt}) and \code{policy} which is passed through to
 \link[pkgdepends:pkg_installation_proposal]{pkgdepends::new_pkg_installation_proposal}.
-\item method \code{auto} takes and argument \code{environment} which contains a
+\item method \code{auto} takes an argument \code{environment} which contains a
 list of packages to install and source files to scan for
 dependencies.
 \item method \code{renv} takes no arguments.
