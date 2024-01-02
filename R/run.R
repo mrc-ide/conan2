@@ -54,9 +54,15 @@ conan_run <- function(config, show_log = TRUE) {
 ##' @export
 conan_write <- function(config, path) {
   assert_is(config, "conan_config")
+  data <- template_data(config)
+
   name <- if (config$method == "auto") "pkgdepends" else config$method
   template <- read_string(conan_file(sprintf("template/install_%s.R", name)))
-  str <- glue_whisker(template, template_data(config))
+  data$implementation <- glue_whisker(template, data)
+
+  wrapper <- read_string(conan_file("template/wrapper.R"))
+  str <- glue_whisker(wrapper, data)
+
   dir_create(dirname(path))
   writeLines(str, path)
 }
@@ -67,9 +73,19 @@ template_data <- function(config) {
   default_repo <- "https://cloud.r-project.org"
   if (config$method == "script") {
     ret$repos <- vector_to_str(default_repo)
+    ret$preload <- vector_to_str("remotes")
+    ret$what <- sprintf("your installation script '%s'", config$script)
   } else if (config$method %in% c("pkgdepends", "auto")) {
     ret$repos <- vector_to_str(c(config$pkgdepends$repos, default_repo))
     ret$refs <- vector_to_str(config$pkgdepends$refs)
+    ret$preload <- vector_to_str(
+      c("ps", "cli", "curl", "filelock", "pkgdepends", "pkgcache",
+        "processx", "lpSolve", "jsonlite", "withr", "desc", "zip",
+        "pkgbuild", "callr"))
+    ret$what <- "pkgdepends"
+  } else if (config$method == "renv") {
+    ret$preload <- vector_to_str("renv")
+    ret$what <- "renv"
   }
   ret
 }
