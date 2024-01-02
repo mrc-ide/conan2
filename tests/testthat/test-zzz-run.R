@@ -48,9 +48,8 @@ test_that("can run an renv installation", {
   path_lib <- "lib"
   path_bootstrap <- bootstrap_library("renv")
   cfg <- conan_configure("renv", path = path, path_lib = path_lib,
-                         path_bootstrap = path_bootstrap,
-                         show_log = FALSE)
-  withr::with_dir(path, conan_run(cfg))
+                         path_bootstrap = path_bootstrap)
+  withr::with_dir(path, conan_run(cfg, show_log = FALSE))
 
   expect_true(file.exists(file.path(path, "lib", "R6")))
   expect_true(file.exists(file.path(path, "lib", "renv")))
