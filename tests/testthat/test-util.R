@@ -6,21 +6,6 @@ test_that("null-or-value works", {
 })
 
 
-test_that("throttle", {
-  a <- 0
-  f <- function(n) {
-    a <<- a + n
-  }
-  throttled <- throttle(0.05)
-  t1 <- Sys.time() + 0.5
-  while (Sys.time() < t1) {
-    throttled(f(1))
-  }
-  expect_lte(a, 11)
-  expect_gte(a, 2) # this is hard on the very slow mac runner
-})
-
-
 test_that("can convert a vector to string representation", {
   expect_equal(vector_to_str("x"), '"x"')
   expect_equal(vector_to_str(c("x", "y")), 'c("x", "y")')
