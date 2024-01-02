@@ -65,8 +65,8 @@ specific to different provisioning methods.</p>
     <div id="arguments">
     <h2>Arguments</h2>
     <dl><dt>method</dt>
-<dd><p>The method to use; currently "script" and
-"pkgdepends" are supported.</p></dd>
+<dd><p>The method to use; currently "script",
+"pkgdepends", "auto" and "renv" are supported.</p></dd>
 
 
 <dt>...</dt>
@@ -111,6 +111,10 @@ name of the script to run, defaults to "provision.R"</p></li>
 a character vector of references (rather than reading from the
 file <code>pkgdepends.txt</code>) and <code>policy</code> which is passed through to
 <a href="https://r-lib.github.io/pkgdepends/reference/pkg_installation_proposal.html" class="external-link">pkgdepends::new_pkg_installation_proposal</a>.</p></li>
+<li><p>method <code>auto</code> takes an argument <code>environment</code> which contains a
+list of packages to install and source files to scan for
+dependencies.</p></li>
+<li><p>method <code>renv</code> takes no arguments.</p></li>
 </ul></div>
 
   </div>
