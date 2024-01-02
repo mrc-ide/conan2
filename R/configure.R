@@ -9,11 +9,15 @@
 ##'   a character vector of references (rather than reading from the
 ##'   file `pkgdepends.txt`) and `policy` which is passed through to
 ##'   [pkgdepends::new_pkg_installation_proposal].
+##' * method `auto` takes an argument `environment` which contains a
+##'   list of packages to install and source files to scan for
+##'   dependencies.
+##' * method `renv` takes no arguments.
 ##'
 ##' @title Configuration for conan
 ##'
-##' @param method The method to use; currently "script" and
-##'   "pkgdepends" are supported.
+##' @param method The method to use; currently "script",
+##'   "pkgdepends", "auto" and "renv" are supported.
 ##'
 ##' @param ... Additional arguments, method specific. See Details.
 ##'
@@ -60,6 +64,8 @@ conan_configure <- function(method, ..., path_lib, path_bootstrap,
       assert_scalar_character(args$refs, "refs", call = rlang::current_env())
     }
     assert_scalar_character(args$policy, "policy", call = rlang::current_env())
+  } else if (method == "renv") {
+    valid_args <- NULL
   } else if (method == "auto") {
     valid_args <- NULL
   } else {
@@ -108,7 +114,9 @@ conan_configure <- function(method, ..., path_lib, path_bootstrap,
 
 
 detect_method <- function(path, call = NULL) {
-  if (file.exists(file.path(path, "provision.R"))) {
+  if (using_renv(path)) {
+    "renv"
+  } else if (file.exists(file.path(path, "provision.R"))) {
     "script"
   } else if (file.exists(file.path(path, "pkgdepends.txt"))) {
     "pkgdepends"
