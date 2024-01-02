@@ -9,7 +9,7 @@
 ##'   a character vector of references (rather than reading from the
 ##'   file `pkgdepends.txt`) and `policy` which is passed through to
 ##'   [pkgdepends::new_pkg_installation_proposal].
-##' * method `auto` takes and argument `environment` which contains a
+##' * method `auto` takes an argument `environment` which contains a
 ##'   list of packages to install and source files to scan for
 ##'   dependencies.
 ##' * method `renv` takes no arguments.
