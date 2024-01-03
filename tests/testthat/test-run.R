@@ -8,8 +8,11 @@ test_that("can write out script based on configuration", {
   expect_true(file.exists(dest))
 
   dat <- template_data(cfg)
-  expect_equal(setdiff(names(dat), names(cfg)), "repos")
+  expect_setequal(setdiff(names(dat), names(cfg)),
+                  c("repos", "preload", "what"))
   expect_equal(dat$repos, vector_to_str("https://cloud.r-project.org"))
+  expect_equal(dat$preload, vector_to_str("remotes"))
+  expect_equal(dat$what, "your installation script 'provision.R'")
 })
 
 
@@ -23,9 +26,11 @@ test_that("can write out pkgdepends script based on configuration", {
   expect_true(file.exists(dest))
 
   dat <- template_data(cfg)
-  expect_equal(setdiff(names(dat), names(cfg)), c("repos", "refs"))
+  expect_setequal(setdiff(names(dat), names(cfg)),
+                  c("repos", "refs", "preload", "what"))
   expect_equal(dat$repos, vector_to_str("https://cloud.r-project.org"))
   expect_equal(dat$refs, vector_to_str("foo"))
+  expect_equal(dat$what, "pkgdepends")
 })
 
 
