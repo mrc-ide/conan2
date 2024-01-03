@@ -1,5 +1,9 @@
 local({
-  ## This is the bit that will get the axe
+  message("/`-'\\  _______  ___  ___ ____")
+  message("\\,T./ / __/ _ \\/ _ \\/ _ `/ _ \\")
+  message("  |   \\__/\\___/_//_/\\_,_/_//_/")
+  message("  |   ---- THE  LIBRARIAN ----")
+  message()
   message("Bootstrapping from: {{path_bootstrap}}")
   message("Installing into library: {{path_lib}}")
   message("Using method {{method}}")
