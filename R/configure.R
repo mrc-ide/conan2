@@ -44,6 +44,7 @@ conan_configure <- function(method, ..., path_lib, path_bootstrap,
                             delete_first = FALSE, path = ".") {
   if (is.null(method)) {
     method <- detect_method(path, call = rlang::current_env())
+    cli::cli_alert_success("Selected provisioning method '{method}'")
   }
 
   args <- list(...)

@@ -1,5 +1,10 @@
 options(repos = {{repos}})
 
+cli::cli_h3("repos")
+cli::cli_li(getOption("repos"))
+cli::cli_h3("refs")
+cli::cli_li({{refs}})
+
 local({
   proposal <- pkgdepends::new_pkg_installation_proposal(
     refs = {{refs}},
