@@ -38,7 +38,7 @@ vector_to_str <- function(x) {
 
 
 list_to_str <- function(x) {
-  paste(trimws(capture.output(dput(x)), "right"), collapse = "\n")
+  paste(trimws(utils::capture.output(dput(x)), "right"), collapse = "\n")
 }
 
 

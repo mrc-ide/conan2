@@ -58,7 +58,7 @@ test_that("can run an automatic installation", {
   d <- readRDS(dir(file.path(path, "lib", ".conan"), full.names = TRUE))
 
   expect_equal(d$method, "auto")
-  expect_mapequal(d$args$pkgdepends, list(refs = "R6", repos = character()))
+  expect_equal(d$args$pkgdepends$refs, "R6") # repos may differ
   expect_true(d$args$delete_first)
   expect_s3_class(d$description, "conan_describe")
   expect_true("R6" %in% names(d$description$packages))
