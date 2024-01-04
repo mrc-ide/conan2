@@ -1,0 +1,11 @@
+test_that("can describe an empty library", {
+  path <- withr::local_tempfile()
+  dir_create(path)
+  res <- conan_describe(path)
+  expect_s3_class(res, "conan_describe")
+  expect_setequal(names(res), c("packages", "time"))
+  expect_s3_class(res$time, "POSIXt")
+  expect_true(is.matrix(res$packages))
+  expect_equal(nrow(res$packages), 0)
+  expect_true(all(c("Package", "Version") %in% colnames(res$packages)))
+})
