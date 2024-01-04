@@ -16,5 +16,5 @@ tooling to work with these soon!
 \description{
 Describe a library.  This creates a summary of version information
 from a library.  This may be slightly slow on network filesystems
-as it uses \link{installed.packages}.
+with large libraries.
 }
