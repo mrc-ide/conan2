@@ -55,3 +55,10 @@ vcapply <- function(...) {
 vlapply <- function(...) {
   vapply(..., FUN.VALUE = TRUE)
 }
+
+
+deparse_fn <- function(nm, indent = 0) {
+  value <- trimws(deparse(get(nm)), "right")
+  value[[1]] <- sprintf("%s <- %s", nm, value[[1]])
+  paste0(strrep(" ", indent), value, collapse = "\n")
+}
