@@ -37,6 +37,12 @@ local({
 
   message("Library paths:")
   message(paste(sprintf("  - %s", .libPaths()), collapse = "\n"))
+
+  id <- strftime(Sys.time(), "%Y%m%d%H%M%S", "GMT")
+  message(sprintf("id: %s", id))
+
+  ## So that we can access this later:
+  options(conan.id = id)
 })
 
 message("Logs from {{what}} follow:")
@@ -48,3 +54,13 @@ message()
 
 message()
 message(strrep("-", 79))
+
+local({
+{{conan_describe_definition}}
+
+  dest <- file.path("{{path_lib}}", ".conan", getOption("conan.id"))
+  message(sprintf("Writing library description to '%s'", dest))
+  dir.create(dirname(dest), FALSE, TRUE)
+  saveRDS(conan_describe("{{path_lib}}"), dest)
+  message("Done!")
+})

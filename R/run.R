@@ -87,5 +87,6 @@ template_data <- function(config) {
     ret$preload <- vector_to_str("renv")
     ret$what <- "renv"
   }
+  ret$conan_describe_definition <- deparse_fn("conan_describe", indent = 2)
   ret
 }

@@ -7,6 +7,12 @@ test_that("can run a script-based installation", {
                          path_bootstrap = path_bootstrap)
   withr::with_dir(path, conan_run(cfg, show_log = FALSE))
   expect_true(file.exists(file.path(path, "lib", "R6")))
+
+  expect_true(file.exists(file.path(path, "lib", ".conan")))
+  expect_length(dir(file.path(path, "lib", ".conan")), 1)
+  d <- readRDS(dir(file.path(path, "lib", ".conan"), full.names = TRUE))
+  expect_s3_class(d, "conan_describe")
+  expect_true("R6" %in% d$packages[, "Package"])
 })
 
 
@@ -19,6 +25,12 @@ test_that("can run a pkgdepends-based installation", {
                          path_bootstrap = path_bootstrap)
   withr::with_dir(path, conan_run(cfg, show_log = FALSE))
   expect_true(file.exists(file.path(path, "lib", "R6")))
+
+  expect_true(file.exists(file.path(path, "lib", ".conan")))
+  expect_length(dir(file.path(path, "lib", ".conan")), 1)
+  d <- readRDS(dir(file.path(path, "lib", ".conan"), full.names = TRUE))
+  expect_s3_class(d, "conan_describe")
+  expect_true("R6" %in% d$packages[, "Package"])
 })
 
 
@@ -32,6 +44,12 @@ test_that("can run an automatic installation", {
                          environment = environment)
   withr::with_dir(path, conan_run(cfg, show_log = FALSE))
   expect_true(file.exists(file.path(path, "lib", "R6")))
+
+  expect_true(file.exists(file.path(path, "lib", ".conan")))
+  expect_length(dir(file.path(path, "lib", ".conan")), 1)
+  d <- readRDS(dir(file.path(path, "lib", ".conan"), full.names = TRUE))
+  expect_s3_class(d, "conan_describe")
+  expect_true("R6" %in% d$packages[, "Package"])
 })
 
 
@@ -53,4 +71,10 @@ test_that("can run an renv installation", {
 
   expect_true(file.exists(file.path(path, "lib", "R6")))
   expect_true(file.exists(file.path(path, "lib", "renv")))
+
+  expect_true(file.exists(file.path(path, "lib", ".conan")))
+  expect_length(dir(file.path(path, "lib", ".conan")), 1)
+  d <- readRDS(dir(file.path(path, "lib", ".conan"), full.names = TRUE))
+  expect_s3_class(d, "conan_describe")
+  expect_true(all(c("R6", "renv") %in% d$packages[, "Package"]))
 })
