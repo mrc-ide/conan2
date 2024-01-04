@@ -11,8 +11,12 @@ test_that("can run a script-based installation", {
   expect_true(file.exists(file.path(path, "lib", ".conan")))
   expect_length(dir(file.path(path, "lib", ".conan")), 1)
   d <- readRDS(dir(file.path(path, "lib", ".conan"), full.names = TRUE))
-  expect_s3_class(d, "conan_describe")
-  expect_true("R6" %in% names(d$packages))
+
+  expect_equal(d$method, "script")
+  expect_equal(d$args$script, "provision.R")
+  expect_false(d$args$delete_first)
+  expect_s3_class(d$description, "conan_describe")
+  expect_true("R6" %in% names(d$description$packages))
 })
 
 
@@ -29,8 +33,11 @@ test_that("can run a pkgdepends-based installation", {
   expect_true(file.exists(file.path(path, "lib", ".conan")))
   expect_length(dir(file.path(path, "lib", ".conan")), 1)
   d <- readRDS(dir(file.path(path, "lib", ".conan"), full.names = TRUE))
-  expect_s3_class(d, "conan_describe")
-  expect_true("R6" %in% names(d$packages))
+
+  expect_equal(d$method, "pkgdepends")
+  expect_mapequal(d$args$pkgdepends, list(refs = "R6", repos = NULL))
+  expect_s3_class(d$description, "conan_describe")
+  expect_true("R6" %in% names(d$description$packages))
 })
 
 
@@ -40,6 +47,7 @@ test_that("can run an automatic installation", {
   path_lib <- "lib"
   path_bootstrap <- bootstrap_library("pkgdepends")
   cfg <- conan_configure(NULL, path = path, path_lib = path_lib,
+                         delete_first = TRUE,
                          path_bootstrap = path_bootstrap,
                          environment = environment)
   withr::with_dir(path, conan_run(cfg, show_log = FALSE))
@@ -48,8 +56,12 @@ test_that("can run an automatic installation", {
   expect_true(file.exists(file.path(path, "lib", ".conan")))
   expect_length(dir(file.path(path, "lib", ".conan")), 1)
   d <- readRDS(dir(file.path(path, "lib", ".conan"), full.names = TRUE))
-  expect_s3_class(d, "conan_describe")
-  expect_true("R6" %in% names(d$packages))
+
+  expect_equal(d$method, "auto")
+  expect_mapequal(d$args$pkgdepends, list(refs = "R6", repos = character()))
+  expect_true(d$args$delete_first)
+  expect_s3_class(d$description, "conan_describe")
+  expect_true("R6" %in% names(d$description$packages))
 })
 
 
@@ -75,6 +87,8 @@ test_that("can run an renv installation", {
   expect_true(file.exists(file.path(path, "lib", ".conan")))
   expect_length(dir(file.path(path, "lib", ".conan")), 1)
   d <- readRDS(dir(file.path(path, "lib", ".conan"), full.names = TRUE))
-  expect_s3_class(d, "conan_describe")
-  expect_true(all(c("R6", "renv") %in% names(d$packages)))
+
+  expect_equal(d$method, "renv")
+  expect_s3_class(d$description, "conan_describe")
+  expect_true(all(c("R6", "renv") %in% names(d$description$packages)))
 })

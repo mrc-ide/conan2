@@ -61,6 +61,9 @@ local({
   dest <- file.path("{{path_lib}}", ".conan", getOption("conan.id"))
   message(sprintf("Writing library description to '%s'", dest))
   dir.create(dirname(dest), FALSE, TRUE)
-  saveRDS(conan_describe("{{path_lib}}"), dest)
+  info <- list(method = "{{method}}",
+               args = {{args_str}},
+               description = conan_describe("{{path_lib}}"))
+  saveRDS(info, dest)
   message("Done!")
 })

@@ -71,6 +71,7 @@ conan_write <- function(config, path) {
 template_data <- function(config) {
   ret <- config
   default_repo <- "https://cloud.r-project.org"
+  ret$args_str <- list_to_str(config[names(config) != "method"])
   if (config$method == "script") {
     ret$repos <- vector_to_str(default_repo)
     ret$preload <- vector_to_str("remotes")
