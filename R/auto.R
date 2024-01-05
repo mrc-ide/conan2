@@ -30,8 +30,13 @@ packages_to_pkgdepends <- function(packages) {
     }
     has_repository <- !is.null(desc$Repository) && desc$Repository != "CRAN"
     has_remote <- !is.null(desc$RemoteRef)
+    has_remote_repository <- !is.null(desc$RemoteType) &&
+      desc$RemoteType %in% c("cran", "standard") &&
+      !is.null(desc$RemoteRepository)
     if (has_repository) {
       repos <- union(repos, desc$Repository)
+    } else if (has_remote_repository) {
+      repos <- union(repos, desc$RemoteRepository)
     } else if (has_remote) {
       ref <- sprintf("%s/%s@%s", desc$RemoteUsername, desc$RemoteRepo,
                      desc$RemoteRef)
@@ -41,11 +46,13 @@ packages_to_pkgdepends <- function(packages) {
       if (length(ref) == 0) {
         cli::cli_warn(
           c("Failed to work out pkgdepends ref for '{p}'",
+            i = "Repository: {desc$Repository %||% 'NULL'}",
+            i = "RemoteType: {desc$RemoteType %||% 'NULL'}",
             i = "RemoteUsername: {desc$RemoteUsername %||% 'NULL'}",
             i = "RemoteRepo: {desc$RemoteRepo %||% 'NULL'}",
             i = "RemoteRef: {desc$RemoteRef %||% 'NULL'}",
             i = "RemoteSubdir: {desc$RemoteSubdir %||% 'NULL'}",
-            i = "If you see this warning, please let us know!"))
+            i = "If you see this warning, please let Rich/Wes know!"))
         ref <- p
       }
       refs[[i]] <- ref

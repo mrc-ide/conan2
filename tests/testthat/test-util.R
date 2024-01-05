@@ -10,3 +10,20 @@ test_that("can convert a vector to string representation", {
   expect_equal(vector_to_str("x"), '"x"')
   expect_equal(vector_to_str(c("x", "y")), 'c("x", "y")')
 })
+
+
+test_that("can convert numbers to ordinals", {
+  expect_equal(ordinal(1), "1st")
+  expect_equal(ordinal(2), "2nd")
+  expect_equal(ordinal(3), "3rd")
+  expect_equal(ordinal(4), "4th")
+  expect_equal(ordinal(11), "11th")
+  expect_equal(ordinal(12), "12th")
+  expect_equal(ordinal(13), "13th")
+  expect_equal(ordinal(14), "14th")
+  expect_equal(ordinal(21), "21st")
+  expect_equal(ordinal(22), "22nd")
+  expect_equal(ordinal(23), "23rd")
+  expect_equal(ordinal(24), "24th")
+  expect_equal(ordinal(43221), "43221st")
+})
