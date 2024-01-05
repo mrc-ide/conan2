@@ -86,7 +86,9 @@ conan_compare <- function(path_lib, curr = 0, prev = -1) {
     status[prev$packages$package[is_unchanged]] <- "unchanged"
   }
 
-  ret <- list(curr = curr, prev = prev, status = status)
+  changes <- compare_changes(status, curr$packages, prev$packages)
+
+  ret <- list(curr = curr, prev = prev, status = status, changes = changes)
   class(ret) <- "conan_compare"
   ret
 }
@@ -105,106 +107,22 @@ print.conan_compare <- function(x, ..., show_unchanged = FALSE) {
       h2 = list("margin-top" = 1, "margin-bottom" = 0),
       h1 = list("margin-top" = 0, "margin-bottom" = 0)))
   print_conan_compare_header(x$prev, x$curr)
-
-  format_source <- function(source, details) {
-    if (is.na(details)) {
-      src <- source
-    } else {
-      src <- sprintf("%s: %s", source, details)
-    }
-  }
-
-  is_unchanged <- x$status == "unchanged"
-  if (any(is_unchanged)) {
-    cli::cli_h2("{sum(is_unchanged)} unchanged package{?s}")
-    if (show_unchanged) {
-      i <- x$curr$packages$package %in% names(x$status)[is_unchanged]
-      for (j in which(i)) {
-        p <- as.list(x$curr$packages[j, ])
-        src <- format_source(p$source, p$details)
-        cli::cli_li("{.strong {p$package}} ({p$version}) {src}")
-      }
-    } else {
-      cli::cli_alert_info(
-        "To show unchanged packages, print with 'show_changed = TRUE'")
-    }
-  }
-
-  is_added <- x$status == "added"
-  if (any(is_added)) {
-    cli::cli_h2("{sum(is_added)} added package{?s}")
-    i <- x$curr$packages$package %in% names(x$status)[is_added]
-    for (j in which(i)) {
-      p <- as.list(x$curr$packages[j, ])
-      src <- format_source(p$source, p$details)
-      cli::cli_li("{.strong {p$package}} ({.new {p$version}}) {src}")
-    }
-  }
-
-  is_removed <- x$status == "removed"
-  if (any(is_removed)) {
-    cli::cli_h2("{sum(is_removed)} removed package{?s}")
-    i <- x$prev$packages$package %in% names(x$status)[is_removed]
-    for (j in which(i)) {
-      p <- as.list(x$prev$packages[j, ])
-      src <- format_source(p$source, p$details)
-      cli::cli_li("{.strong {p$package}} ({.old {p$version}}) {.old {src}}")
-    }
-  }
-
-  is_updated <- x$status == "updated"
-  if (any(is_updated)) {
-    cli::cli_h2("{sum(is_updated)} updated package{?s}")
-    for (nm in names(x$status)[is_updated]) {
-      p_prev <- as.list(x$prev$packages[x$prev$packages$package == nm, ])
-      p_curr <- as.list(x$curr$packages[x$curr$packages$package == nm, ])
-      notes <- NULL
-      if (p_prev$version == p_curr$version) {
-        version <- p_curr$version
-        notes <- c(notes, c("!" = "Version number unchanged between updates"))
+  for (nm in c("unchanged", "added", "removed", "updated")) {
+    if (length(x$changes[[nm]]) > 0) {
+      cli::cli_h2("{length(x$changes[[nm]])} {nm} package{?s}")
+      if (nm == "unchanged" && !show_unchanged) {
+        cli::cli_alert_info(
+          "To show unchanged packages, print with 'show_changed = TRUE'")
       } else {
-        version <- "{.old {p_prev$version}} -> {.new {p_curr$version}}"
-      }
-
-      if (p_prev$source != p_curr$source) {
-        src <- sprintf("{.old %s} -> {.new %s}",
-                       format_source(p_prev$source, p_prev$details),
-                       format_source(p_curr$source, p_curr$details))
-      } else if (identical(p_prev$details, p_curr$details)) {
-        notes <- c(
-          notes,
-          c("!" = "Different reported build times, but details unchanged?"))
-        src <- format_source(p_curr$source, p_curr$details)
-      } else {
-        details <- details_changes(p_prev$details, p_curr$details)
-        src <- format_source(p_curr$source, details)
-      }
-      cli::cli_li(sprintf("{.strong {p_curr$package}} (%s) %s",
-                          version, src))
-      if (!is.null(notes)) {
-        cli::bullets(notes)
+        cli::cli_li(x$changes[[nm]])
       }
     }
   }
-
   invisible(x)
 }
 
 
 print_conan_compare_header <- function(prev, curr) {
-  ord <- function(n) {
-    if (n == 1 || n > 20 && n %% 10 == 1) {
-      suffix <- "st"
-    } else if (n == 2 || n > 20 && n %% 10 == 2) {
-      suffix <- "nd"
-    } else if (n == 3 || n > 20 && n %% 10 == 3) {
-      suffix <- "rd"
-    } else {
-      suffix <- "th"
-    }
-    paste0(n, suffix)
-  }
-
   age <- function(n) {
     if (n == 0) {
       "current installation"
@@ -214,18 +132,17 @@ print_conan_compare_header <- function(prev, curr) {
       paste(-n, "installations ago")
     }
   }
-
   cli::cli_h1("Comparing conan installations")
   if (is.null(prev)) {
     cli::cli_li("({.old empty installation})")
   } else {
     cli::cli_div(theme = list(span.emph = list(color = "orange")))
     cli::cli_li(paste(
-      "{.strong {prev$name}} {.old {ord(prev$index)}; {age(prev$age)}",
+      "{.strong {prev$name}} {.old {ordinal(prev$index)}; {age(prev$age)}",
       "({prettyunits::time_ago(prev$time)})}"))
   }
   cli::cli_li(paste(
-    "{.strong {curr$name}} {.new {ord(curr$index)}; {age(curr$age)}",
+    "{.strong {curr$name}} {.new {ordinal(curr$index)}; {age(curr$age)}",
     "({prettyunits::time_ago(curr$time)})}"))
 }
 
@@ -307,4 +224,83 @@ compare_select_index <- function(x, contents, name, call) {
     }
   }
   i
+}
+
+
+compare_changes <- function(status, curr, prev) {
+  status <- split(names(status), status)
+  list(unchanged = compare_changes_unchanged(status$unchanged, curr),
+       added = compare_changes_added(status$added, curr),
+       removed = compare_changes_removed(status$removed, prev),
+       updated = compare_changes_updated(status$updated, curr, prev))
+}
+
+compare_changes_unchanged <- function(nms, curr) {
+  compare_changes_simple(nms, curr, "")
+}
+
+
+compare_changes_added <- function(nms, curr) {
+  compare_changes_simple(nms, curr, "new")
+}
+
+
+compare_changes_removed <- function(nms, prev) {
+  compare_changes_simple(nms, prev, "old")
+}
+
+
+compare_changes_simple <- function(nms, packages, class) {
+  ret <- character(length(nms))
+  for (i in seq_along(nms)) {
+    p <- as.list(packages[packages$package == nms[[i]], ])
+    src <- format_package_source(p$source, p$details)
+    if (nzchar(class)) {
+      ret[[i]] <- sprintf("{.strong %s} ({.%s %s}) %s",
+                          p$package, class, p$version, src)
+    } else {
+      ret[[i]] <- sprintf("{.strong %s} (%s) %s",
+                          p$package, p$version, src)
+    }
+  }
+  ret
+}
+
+
+compare_changes_updated <- function(nms, curr, prev) {
+  ret <- character(length(nms))
+  for (i in seq_along(nms)) {
+    p_prev <- as.list(prev[prev$package == nms[[i]], ])
+    p_curr <- as.list(curr[curr$package == nms[[i]], ])
+    if (p_prev$version == p_curr$version) {
+      version <- p_curr$version
+      ## Could warn about this here...
+    } else {
+      version <- sprintf("{.old %s} -> {.new %s}",
+                         p_prev$version, p_curr$version)
+    }
+    if (p_prev$source != p_curr$source) {
+      src <- sprintf("{.old %s} -> {.new %s}",
+                     format_package_source(p_prev$source, p_prev$details),
+                     format_package_source(p_curr$source, p_curr$details))
+    } else if (identical(p_prev$details, p_curr$details)) {
+      ## Could warn about this here...
+      src <- format_package_source(p_curr$source, p_curr$details)
+    } else {
+      details <- details_changes(p_prev$details, p_curr$details)
+      src <- format_package_source(p_curr$source, details)
+    }
+    ret[[i]] <- sprintf("{.strong %s} (%s) %s",
+                        p_curr$package, version, src)
+  }
+  ret
+}
+
+
+format_package_source <- function(source, details) {
+  if (is.na(details)) {
+    src <- source
+  } else {
+    src <- sprintf("%s: %s", source, details)
+  }
 }

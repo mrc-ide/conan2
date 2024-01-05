@@ -116,6 +116,11 @@ test_that("compare empty and initial", {
 
   expect_null(res$prev)
   expect_equal(res$status, c(R6 = "added"))
+
+  expect_equal(res$changes$added, "{.strong R6} ({.new 2.5.1}) CRAN")
+  expect_equal(res$changes$unchanged, character())
+  expect_equal(res$changes$removed, character())
+  expect_equal(res$changes$updated, character())
 })
 
 
@@ -145,6 +150,16 @@ test_that("compare two with additions only", {
                  openssl = "added",
                  sys = "added",
                  uuid = "added"))
+
+  expect_equal(res$changes$unchanged, "{.strong R6} (2.5.1) CRAN")
+  expect_equal(res$changes$added,
+               c("{.strong askpass} ({.new 1.2.0}) CRAN",
+                 "{.strong ids} ({.new 1.0.1}) CRAN",
+                 "{.strong openssl} ({.new 2.1.1}) CRAN",
+                 "{.strong sys} ({.new 3.4.2}) CRAN",
+                 "{.strong uuid} ({.new 1.1.1}) CRAN"))
+  expect_equal(res$changes$removed, character())
+  expect_equal(res$changes$updated, character())
 })
 
 
@@ -160,6 +175,16 @@ test_that("compare two with deletions", {
                  openssl = "removed",
                  sys = "unchanged",
                  uuid = "unchanged"))
+  expect_equal(res$changes$unchanged,
+               c("{.strong R6} (2.5.1) CRAN",
+                 "{.strong ids} (1.2.2) github: richfitz/ids (07e7325)",
+                 "{.strong sys} (3.4.2) CRAN",
+                 "{.strong uuid} (1.1.1) CRAN"))
+  expect_equal(res$changes$removed,
+               c("{.strong askpass} ({.old 1.2.0}) CRAN",
+                 "{.strong openssl} ({.old 2.1.1}) CRAN"))
+  expect_equal(res$changes$added, character())
+  expect_equal(res$changes$updated, character())
 })
 
 
@@ -175,4 +200,25 @@ test_that("compare two with updates", {
                  openssl = "unchanged",
                  sys = "unchanged",
                  uuid = "unchanged"))
+  expect_length(res$changes$unchanged, 5)
+  expect_length(res$changes$added, 0)
+  expect_length(res$changes$removed, 0)
+  expect_equal(
+    res$changes$updated,
+    paste("{.strong ids} ({.old 1.1.3} -> {.new 1.2.2})",
+          "github: richfitz/ids{{{.old @tidy (651433d)} ->",
+          "{.new  (07e7325)}}}"))
+})
+
+
+test_that("can describe changes in detail", {
+  expect_equal(
+    details_changes("user/repo (x)", "user/repo@foo (x)"),
+    "user/repo{{{.old  (x)} -> {.new @foo (x)}}}")
+  expect_equal(
+    details_changes("user/repo@foo (x)", "user/repo@bar (y)"),
+    "user/repo@{{{.old foo (x)} -> {.new bar (y)}}}")
+  expect_equal(
+    details_changes("user/repo@foo (x)", "other/repo@bar (y)"),
+    "{.old user/repo@foo (x)} -> {.new other/repo@bar (y)}")
 })

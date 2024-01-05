@@ -98,3 +98,17 @@ set_names <- function(x, nms) {
   names(x) <- nms
   x
 }
+
+
+ordinal <- function(n) {
+  if (n == 1 || n > 20 && n %% 10 == 1) {
+    suffix <- "st"
+  } else if (n == 2 || n > 20 && n %% 10 == 2) {
+    suffix <- "nd"
+  } else if (n == 3 || n > 20 && n %% 10 == 3) {
+    suffix <- "rd"
+  } else {
+    suffix <- "th"
+  }
+  paste0(n, suffix)
+}
