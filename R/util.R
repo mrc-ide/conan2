@@ -37,6 +37,11 @@ vector_to_str <- function(x) {
 }
 
 
+list_to_str <- function(x) {
+  paste(trimws(utils::capture.output(dput(x)), "right"), collapse = "\n")
+}
+
+
 collapseq <- function(x, last = NULL) {
   paste(squote(x), collapse = ", ")
 }
@@ -54,4 +59,36 @@ vcapply <- function(...) {
 
 vlapply <- function(...) {
   vapply(..., FUN.VALUE = TRUE)
+}
+
+
+deparse_fn <- function(nm, indent = 0) {
+  value <- trimws(deparse(get(nm)), "right")
+  value[[1]] <- sprintf("%s <- %s", nm, value[[1]])
+  paste0(strrep(" ", indent), value, collapse = "\n")
+}
+
+
+short_sha <- function(x) {
+  sub("([[:xdigit:]]{7})[[:xdigit:]]{33}", "\\1", x)
+}
+
+
+## R time objects really want me poke my eyes out.  Perhaps there is a
+## better way of doing this?  Who knows?
+unlist_times <- function(x) {
+  if (length(x) == 0L) {
+    empty_time()
+  } else {
+    i <- vapply(x, inherits, TRUE, "POSIXlt")
+    x[i] <- lapply(x[i], as.POSIXct)
+    ret <- vapply(x, as.numeric, numeric(1))
+    attributes(ret) <- attributes(x[[1L]])
+    ret
+  }
+}
+
+
+empty_time <- function() {
+  Sys.time()[-1]
 }
