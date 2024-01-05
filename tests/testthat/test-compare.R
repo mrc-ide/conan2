@@ -100,3 +100,79 @@ test_that("prevent problematic comparisons", {
   expect_error(compare_select("lib", letters[1:5], -Inf, -Inf),
                "'curr' must be a real installation")
 })
+
+
+test_that("compare empty and initial", {
+  path <- withr::local_tempdir()
+  nms <- example_installations(path)
+  res <- conan_compare(path, 1, NULL)
+  expect_s3_class(res, "conan_compare")
+
+  cmp <- readRDS(file.path(path, ".conan", nms[[1]]))
+  expect_equal(res$curr$name, nms[[1]])
+  expect_equal(res$curr$index, 1)
+  expect_equal(res$curr$age, -4)
+  expect_equal(res$curr$packages, as.data.frame(cmp$description))
+
+  expect_null(res$prev)
+  expect_equal(res$status, c(R6 = "added"))
+})
+
+
+test_that("compare two with additions only", {
+  path <- withr::local_tempdir()
+  nms <- example_installations(path)
+  res <- conan_compare(path, 2, 1)
+  expect_s3_class(res, "conan_compare")
+
+  cmp1 <- readRDS(file.path(path, ".conan", nms[[1]]))
+  cmp2 <- readRDS(file.path(path, ".conan", nms[[2]]))
+
+  expect_equal(res$curr$name, nms[[2]])
+  expect_equal(res$curr$index, 2)
+  expect_equal(res$curr$age, -3)
+  expect_equal(res$curr$packages, as.data.frame(cmp2$description))
+
+  expect_equal(res$prev$name, nms[[1]])
+  expect_equal(res$prev$index, 1)
+  expect_equal(res$prev$age, -4)
+  expect_equal(res$prev$packages, as.data.frame(cmp1$description))
+
+  expect_equal(res$status,
+               c(R6 = "unchanged",
+                 askpass = "added",
+                 ids = "added",
+                 openssl = "added",
+                 sys = "added",
+                 uuid = "added"))
+})
+
+
+test_that("compare two with deletions", {
+  path <- withr::local_tempdir()
+  nms <- example_installations(path)
+  res <- conan_compare(path)
+  expect_s3_class(res, "conan_compare")
+  expect_equal(res$status,
+               c(R6 = "unchanged",
+                 askpass = "removed",
+                 ids = "unchanged",
+                 openssl = "removed",
+                 sys = "unchanged",
+                 uuid = "unchanged"))
+})
+
+
+test_that("compare two with updates", {
+  path <- withr::local_tempdir()
+  nms <- example_installations(path)
+  res <- conan_compare(path, -1, -2)
+  expect_s3_class(res, "conan_compare")
+  expect_equal(res$status,
+               c(R6 = "unchanged",
+                 askpass = "unchanged",
+                 ids = "updated",
+                 openssl = "unchanged",
+                 sys = "unchanged",
+                 uuid = "unchanged"))
+})
