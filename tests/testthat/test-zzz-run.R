@@ -20,7 +20,14 @@ test_that("can run a script-based installation", {
   expect_s3_class(d$description, "conan_describe")
   expect_true("R6" %in% names(d$description$packages))
 
-  expect_equal(conan_list(file.path(path, path_lib))$hash, cfg$hash)
+  h <- cfg$hash
+  d <- conan_list(file.path(path, path_lib))
+  expect_equal(d$hash, h)
+  expect_null(d$current)
+
+  d <- conan_list(file.path(path, path_lib), h)
+  expect_equal(d$hash, h)
+  expect_true(d$current)
 })
 
 
