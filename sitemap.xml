@@ -16,10 +16,16 @@
     <loc>/reference/conan2-package.html</loc>
   </url>
   <url>
+    <loc>/reference/conan_compare.html</loc>
+  </url>
+  <url>
     <loc>/reference/conan_configure.html</loc>
   </url>
   <url>
     <loc>/reference/conan_describe.html</loc>
+  </url>
+  <url>
+    <loc>/reference/conan_list_installations.html</loc>
   </url>
   <url>
     <loc>/reference/conan_run.html</loc>
