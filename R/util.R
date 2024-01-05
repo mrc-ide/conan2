@@ -92,3 +92,9 @@ unlist_times <- function(x) {
 empty_time <- function() {
   Sys.time()[-1]
 }
+
+
+set_names <- function(x, nms) {
+  names(x) <- nms
+  x
+}

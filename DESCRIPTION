@@ -17,6 +17,7 @@ Imports:
     cli,
     fs,
     glue,
+    prettyunits,
     rlang
 Suggests:
     callr,
