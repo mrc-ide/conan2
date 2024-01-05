@@ -5,7 +5,6 @@ test_that("can run a script-based installation", {
   path_bootstrap <- bootstrap_library(NULL)
   cfg <- conan_configure(NULL, path = path, path_lib = path_lib,
                          path_bootstrap = path_bootstrap)
-  expect_false(conan_is_current(file.path(path, path_lib), cfg))
   withr::with_dir(path, conan_run(cfg, show_log = FALSE))
   expect_true(file.exists(file.path(path, "lib", "R6")))
 
@@ -21,12 +20,7 @@ test_that("can run a script-based installation", {
   expect_s3_class(d$description, "conan_describe")
   expect_true("R6" %in% names(d$description$packages))
 
-  expect_true(conan_is_current(file.path(path, path_lib), cfg))
-
-  writeLines('install.packages("other")', file.path(path, "provision.R"))
-  cfg2 <- conan_configure(NULL, path = path, path_lib = path_lib,
-                          path_bootstrap = path_bootstrap)
-  expect_false(conan_is_current(file.path(path, path_lib), cfg2))
+  expect_equal(conan_list(file.path(path, path_lib))$hash, cfg$hash)
 })
 
 

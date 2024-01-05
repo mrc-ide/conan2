@@ -1,47 +1,18 @@
-##' List installations that have been carried out by conan into a
-##' library
-##'
-##' @title List conan installations
-##'
-##' @param path_lib The library that conan has installed into
-##'
-##' @return Invisibly, a character vector of names
-##'
-##' @export
-conan_list_installations <- function(path_lib) {
-  contents <- sort(dir(file.path(path_lib, ".conan")))
-  if (length(contents) == 0) {
-    cli::cli_alert_warning("No conan installations recorded")
-  } else {
-    cli::cli_alert_info("{length(contents)} conan installation{?s} recorded")
-    ago <- vcapply(contents, function(x) {
-      time <- readRDS(file.path(path_lib, ".conan", x))$description$time
-      prettyunits::time_ago(time)
-    })
-    i <- seq_along(contents)
-    j <- i - length(contents)
-    txt <- sprintf("%d: {.strong %s} (%s) [%d]", i, contents, ago, j)
-    cli::cli_li(txt)
-  }
-  invisible(contents)
-}
-
-
 ##' Compare conan installations.
 ##'
 ##' @title Compare conan installations
 ##'
-##' @inheritParams conan_list_installations
+##' @inheritParams conan_list
 ##'
 ##' @param curr The previous installation to compare against. Can be a
-##'   name (see [conan_list_installations] to get names), a negative
+##'   name (see [conan_list] to get names), a negative
 ##'   number where `-n` indicates "`n` installations ago" or a
 ##'   positive number where `n` indicates "the `n`th
 ##'   installation". The default value of 0 corresponds to the current
 ##'   installation.
 ##'
 ##' @param prev The previous installation to compare against. Can be a
-##'   name (see [conan_list_installations] to get names), a negative
+##'   name (see [conan_list] to get names), a negative
 ##'   number where `-n` indicates "`n` installations ago" or a
 ##'   positive number where `n` indicates "the `n`th installation".
 ##'   The default of -1 indicates the previous installation. Must

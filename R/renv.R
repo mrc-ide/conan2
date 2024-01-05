@@ -24,7 +24,7 @@ renv_hash <- function(path) {
         "i" = "Have you forgotten to run 'renv::snapshot()'?"))
     ## We return a random number here; guaranteeing that we are never
     ## current.
-    return(rlang::hash(runif(1)))
+    return(rlang::hash(stats::runif(1)))
   }
   rlang::hash_file(path_lockfile)
 }
