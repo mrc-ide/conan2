@@ -15,7 +15,9 @@ test_that("can write out script based on configuration", {
   expect_equal(dat$preload, vector_to_str("remotes"))
   expect_equal(dat$what, "your installation script 'provision.R'")
   expect_equal(dat$conan_describe_definition, deparse_fn("conan_describe", 2))
-  expect_equal(dat$args_str, list_to_str(cfg[names(cfg) != "method"]))
+  expect_equal(dat$hash, cfg$hash)
+  expect_equal(dat$args_str,
+               list_to_str(cfg[setdiff(names(cfg), c("method", "hash"))]))
 })
 
 
@@ -35,7 +37,9 @@ test_that("can write out pkgdepends script based on configuration", {
   expect_equal(dat$repos, vector_to_str("https://cloud.r-project.org"))
   expect_equal(dat$refs, vector_to_str("foo"))
   expect_equal(dat$what, "pkgdepends")
-  expect_equal(dat$args_str, list_to_str(cfg[names(cfg) != "method"]))
+  expect_equal(dat$hash, cfg$hash)
+  expect_equal(dat$args_str,
+               list_to_str(cfg[setdiff(names(cfg), c("method", "hash"))]))
 })
 
 

@@ -8,6 +8,7 @@ test_that("can create basic configuration", {
   expect_equal(cfg$method, "script")
   expect_equal(cfg$path_lib, "path/lib")
   expect_equal(cfg$path_bootstrap, "path/bootstrap")
+  expect_equal(cfg$hash, rlang::hash_file(file.path(path, "provision.R")))
   expect_false(cfg$delete_first)
 })
 
@@ -72,6 +73,7 @@ test_that("can configure pkgdepends with character vector", {
                          path_bootstrap = "path/bootstrap")
   expect_equal(cfg$method, "pkgdepends")
   expect_equal(cfg$pkgdepends, list(repos = NULL, refs = "foo"))
+  expect_equal(cfg$hash, "ca8aa9ed287947861b086201509bd545")
 })
 
 
@@ -82,6 +84,7 @@ test_that("can detect a pkgdepends installation", {
   cfg <- conan_configure(NULL, path = path, path_lib = "path/lib",
                          path_bootstrap = "path/bootstrap")
   expect_equal(cfg$method, "pkgdepends")
+  expect_equal(cfg$hash, "db76fa4412cef127825620f141019980")
   expect_equal(cfg$pkgdepends,
                list(repos = "https://mrc-ide.r-universe.dev",
                     refs = c("ids", "odin")))
@@ -133,6 +136,7 @@ test_that("can fall back on automatic installation", {
                          path_bootstrap = "path/bootstrap",
                          environment = env)
   expect_equal(cfg$method, "auto")
+  expect_equal(cfg$hash, "4f900c3aa5950fde464772a0e38bbb22")
   expect_mapequal(cfg$pkgdepends,
                   list(repos = character(), refs = c("apple", "banana")))
   expect_equal(

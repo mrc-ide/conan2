@@ -98,9 +98,15 @@ conan_configure <- function(method, ..., path_lib, path_bootstrap,
       refs <- args$refs
     }
     args$pkgdepends <- pkgdepends_parse(refs)
+    args$hash <- rlang::hash(args$pkgdepends)
   } else if (method == "auto") {
     args$pkgdepends <- build_pkgdepends_auto(args$environment, path)
     args$policy <- "lazy" # always lazy
+    args$hash <- rlang::hash(args$pkgdepends)
+  } else if (method == "script") {
+    args$hash <- rlang::hash_file(file.path(path, args$script))
+  } else if (method == "renv") {
+    args$hash <- renv_hash(path)
   }
 
   args$method <- method

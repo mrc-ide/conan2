@@ -63,6 +63,7 @@ local({
   dir.create(dirname(dest), FALSE, TRUE)
   info <- list(method = "{{method}}",
                args = {{args_str}},
+               hash = "{{hash}}",
                description = conan_describe("{{path_lib}}"))
   saveRDS(info, dest)
   message("Done!")
