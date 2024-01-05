@@ -175,7 +175,7 @@ test_that("compare two with deletions", {
                     openssl = "removed",
                     sys = "unchanged",
                     uuid = "unchanged"))
-  expect_mapequal(res$changes$unchanged,
+  expect_setequal(res$changes$unchanged,
                   c("{.strong R6} (2.5.1) CRAN",
                     "{.strong ids} (1.2.2) github: richfitz/ids (07e7325)",
                     "{.strong sys} (3.4.2) CRAN",
