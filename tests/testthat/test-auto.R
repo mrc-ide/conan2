@@ -72,3 +72,23 @@ test_that("can detect complex refs", {
   expect_equal(mockery::mock_args(mock_pkg_desc),
                list(list("a"), list("b"), list("c"), list("d")))
 })
+
+
+test_that("can detect remote standard installs", {
+  desc <- function(...) {
+    structure(list(...), class = "packageDescription")
+  }
+  mock_pkg_desc <- mockery::mock(
+    desc(RemoteRepository = "https://cran.example.com",
+         RemoteRef = "a", RemoteType = "standard"))
+  mockery::stub(packages_to_pkgdepends, "utils::packageDescription",
+                mock_pkg_desc)
+  res <- packages_to_pkgdepends("a")
+  expect_mapequal(
+    res,
+    list(repos = "https://cran.example.com",
+         refs = "a"))
+  mockery::expect_called(mock_pkg_desc, 1)
+  expect_equal(mockery::mock_args(mock_pkg_desc)[[1]],
+               list("a"))
+})
