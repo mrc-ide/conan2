@@ -54,38 +54,25 @@ conan_list_installations <- function(path_lib) {
 ##' @export
 conan_compare <- function(path_lib, curr = 0, prev = -1) {
   contents <- sort(dir(file.path(path_lib, ".conan")))
-  if (length(contents) == 0) {
-    cli::cli_abort(
-      "No conan installations found at '{path_lib}'")
-  }
-  i_curr <- select_compare(curr, contents, "curr", rlang::current_env())
-  i_prev <- select_compare(prev %||% -Inf, contents, "prev",
-                           rlang::current_env())
-  if (i_curr < i_prev) {
-    cli::cli_abort(
-      "'curr' (installation {i_curr}) is earlier than 'prev' ({i_prev})")
-  }
-  if (i_curr < i_prev) {
-    cli::cli_abort("'curr' (installation {i_curr}) is the same as 'prev'")
-  }
+  index <- compare_select(path_lib, contents, curr, prev, rlang::current_env())
 
-  info_curr <- readRDS(file.path(path_lib, ".conan", contents[[i_curr]]))
-  curr <- list(name = contents[[i_curr]],
-               index = i_curr,
-               age = i_curr - length(contents),
+  info_curr <- readRDS(file.path(path_lib, ".conan", contents[[index$curr]]))
+  curr <- list(name = contents[[index$curr]],
+               index = index$curr,
+               age = index$curr - length(contents),
                time = info_curr$description$time,
                method = info_curr$method,
                packages = as.data.frame(info_curr$description))
 
-  if (i_prev == 0) {
+  if (is.null(index$prev)) {
     prev <- NULL
     status <- set_names(rep("added", nrow(curr$packages)),
                         curr$packages$package)
   } else {
-    info_prev <- readRDS(file.path(path_lib, ".conan", contents[[i_prev]]))
-    prev <- list(name = contents[[i_prev]],
-                 index = i_prev,
-                 age = i_prev - length(contents),
+    info_prev <- readRDS(file.path(path_lib, ".conan", contents[[index$prev]]))
+    prev <- list(name = contents[[index$prev]],
+                 index = index$prev,
+                 age = index$prev - length(contents),
                  time = info_prev$description$time,
                  method = info_prev$method,
                  packages = as.data.frame(info_prev$description))
@@ -102,34 +89,6 @@ conan_compare <- function(path_lib, curr = 0, prev = -1) {
   ret <- list(curr = curr, prev = prev, status = status)
   class(ret) <- "conan_compare"
   ret
-}
-
-
-select_compare <- function(x, contents, name, call) {
-  assert_scalar(x, name = name, call = call)
-  if (is.character(x)) {
-    i <- match(x, contents)
-    if (is.na(i)) {
-      cli::cli_abort(
-        c("Invalid entry '{x}' for '{name}",
-          i = "Valid entries include: {squote(utils::tail(contents))}"),
-        call = call, arg = name)
-    }
-
-  } else if (is.numeric(x)) {
-    if (x <= 0) {
-      i <- max(0, length(contents) + x)
-    } else {
-      if (i > length(contents)) {
-        cli::cli_abort(
-          c("Invalid entry '{x}' for '{name}",
-            i = "Maximum allowed value is: {length(contents)}"),
-          call = call, arg = name)
-      }
-      i <- x
-    }
-  }
-  i
 }
 
 
@@ -286,4 +245,66 @@ details_changes <- function(prev, curr) {
     curr <- paste(utils::tail(parts[[2]], -i + 1), collapse = "")
     sprintf("%s{{{.old %s} -> {.new %s}}}", shared, prev, curr)
   }
+}
+
+
+compare_select <- function(path_lib, contents, curr, prev, call = NULL) {
+  if (length(contents) == 0) {
+    cli::cli_abort(
+      "No conan installations found at '{path_lib}'")
+  }
+  i_curr <- compare_select_index(curr, contents, "curr", call)
+  if (is.null(i_curr)) {
+    hint <- paste("You provided '{curr}' which refers to the state",
+                  "before any installation")
+    cli::cli_abort(c("'curr' must be a real installation", i = hint),
+                   arg = "curr", call = call)
+  }
+  i_prev <- compare_select_index(prev %||% -Inf, contents, "prev", call)
+  if (!is.null(i_prev) && i_curr < i_prev) {
+    cli::cli_abort(
+      "'curr' (installation {i_curr}) is earlier than 'prev' ({i_prev})",
+      call = call)
+  }
+  if (!is.null(i_prev) && i_curr == i_prev) {
+    cli::cli_abort("'curr' (installation {i_curr}) is the same as 'prev'",
+                   call = call)
+  }
+
+  list(curr = i_curr, prev = i_prev)
+}
+
+
+compare_select_index <- function(x, contents, name, call) {
+  assert_scalar(x, name = name, call = call)
+  if (is.character(x)) {
+    i <- match(x, contents)
+    if (is.na(i)) {
+      if (length(contents) <= 5) {
+        hint <- "Valid entries are: {squote(utils::tail(contents))}"
+      } else {
+        hint <- "Valid entries include: {squote(utils::tail(contents, 5))}"
+      }
+      cli::cli_abort(
+        c("Invalid entry '{x}' for '{name}'", i = hint),
+        call = call, arg = name)
+    }
+
+  } else if (is.numeric(x)) {
+    if (x <= 0) {
+      i <- length(contents) + x
+      if (i <= 0) {
+        i <- NULL
+      }
+    } else {
+      if (x > length(contents)) {
+        cli::cli_abort(
+          c("Invalid entry '{x}' for '{name}'",
+            i = "Maximum allowed value is {length(contents)}"),
+          call = call, arg = name)
+      }
+      i <- x
+    }
+  }
+  i
 }
