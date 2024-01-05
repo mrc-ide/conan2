@@ -39,4 +39,5 @@ installations <- function() {
 }
 
 fs::dir_create("examples")
-saveRDS(installations(), file.path("examples/installations.rds"))
+saveRDS(installations(), file.path("examples/installations.rds"),
+        version = 2)
