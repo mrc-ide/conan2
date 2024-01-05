@@ -222,3 +222,76 @@ test_that("can describe changes in detail", {
     details_changes("user/repo@foo (x)", "other/repo@bar (y)"),
     "{.old user/repo@foo (x)} -> {.new other/repo@bar (y)}")
 })
+
+
+test_that("can print simple comparison", {
+  withr::local_options(cli.num_colors = 0)
+  path <- withr::local_tempdir()
+  nms <- example_installations(path, 1)
+  msg <- capture_messages(print(conan_compare(path)))
+  msg <- msg[msg != "\n"] # work around theming issues
+  expect_match(msg[[1]], "Comparing conan installations")
+  expect_match(msg[[2]], "(empty installation)", fixed = TRUE)
+  expect_match(msg[[3]], "20240105110353 1st; current installation",
+               fixed = TRUE)
+  expect_match(msg[[4]], "1 added package")
+  expect_match(msg[[5]], "R6 (2.5.1) CRAN", fixed = TRUE)
+})
+
+
+test_that("can print complex comparison", {
+  withr::local_options(cli.num_colors = 0)
+  path <- withr::local_tempdir()
+  nms <- example_installations(path)
+  msg <- capture_messages(print(conan_compare(path)))
+  msg <- msg[msg != "\n"] # work around theming issues
+  expect_match(msg[[1]], "Comparing conan installations")
+  expect_match(msg[[2]], "20240105110415 4th; previous installation",
+               fixed = TRUE)
+  expect_match(msg[[3]], "20240105110419 5th; current installation",
+               fixed = TRUE)
+  expect_match(msg[[4]], "4 unchanged packages")
+  expect_match(msg[[5]], "To show unchanged packages, print with",
+               fixed = TRUE)
+  expect_match(msg[[6]], "2 removed packages")
+  expect_match(msg[[7]], "askpass (1.2.0) CRAN", fixed = TRUE)
+  expect_match(msg[[8]], "openssl (2.1.1) CRAN", fixed = TRUE)
+})
+
+
+test_that("can print long comparison", {
+  withr::local_options(cli.num_colors = 0)
+  path <- withr::local_tempdir()
+  nms <- example_installations(path)
+  msg <- capture_messages(print(conan_compare(path, prev = -4)))
+  expect_match(msg[[1]], "Comparing conan installations")
+  expect_match(msg[[2]], "20240105110353 1st; 4 installations ago",
+               fixed = TRUE)
+  expect_match(msg[[3]], "20240105110419 5th; current installation",
+               fixed = TRUE)
+})
+
+
+test_that("can generate updated changes", {
+  nms <- "a"
+  curr1 <- data.frame(
+    package = "a", version = "1.2.3", source = "CRAN", details = NA)
+  curr2 <- data.frame(
+    package = "a", version = "1.2.3", source = "github", details = "bob/repo")
+  prev1 <- data.frame(
+    package = "a", version = "1.2.3", source = "CRAN", details = NA)
+  prev2 <- data.frame(
+    package = "a", version = "1.1.3", source = "CRAN", details = NA)
+  prev3 <- data.frame(
+    package = "a", version = "1.2.3", source = "github", details = "user/repo")
+  ## we might change this one later
+  expect_equal(compare_changes_updated(nms, curr1, prev1),
+               "{.strong a} (1.2.3) CRAN")
+  expect_equal(compare_changes_updated(nms, curr1, prev2),
+               "{.strong a} ({.old 1.1.3} -> {.new 1.2.3}) CRAN")
+  expect_equal(compare_changes_updated(nms, curr1, prev3),
+               "{.strong a} (1.2.3) {.old github: user/repo} -> {.new CRAN}")
+  expect_equal(
+    compare_changes_updated(nms, curr2, prev3),
+    "{.strong a} (1.2.3) github: {.old user/repo} -> {.new bob/repo}")
+})

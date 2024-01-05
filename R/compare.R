@@ -109,7 +109,8 @@ print.conan_compare <- function(x, ..., show_unchanged = FALSE) {
   print_conan_compare_header(x$prev, x$curr)
   for (nm in c("unchanged", "added", "removed", "updated")) {
     if (length(x$changes[[nm]]) > 0) {
-      cli::cli_h2("{length(x$changes[[nm]])} {nm} package{?s}")
+      n <- length(x$changes[[nm]])
+      cli::cli_h2(paste("{n} {nm} {cli::qty(n)}package{?s}"))
       if (nm == "unchanged" && !show_unchanged) {
         cli::cli_alert_info(
           "To show unchanged packages, print with 'show_changed = TRUE'")
