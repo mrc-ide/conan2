@@ -30,8 +30,13 @@ packages_to_pkgdepends <- function(packages) {
     }
     has_repository <- !is.null(desc$Repository) && desc$Repository != "CRAN"
     has_remote <- !is.null(desc$RemoteRef)
+    has_remote_repository <- !is.null(desc$RemoteType) &&
+      desc$RemoteType %in% c("cran", "standard") &&
+      !is.null(desc$RemoteRepository)
     if (has_repository) {
       repos <- union(repos, desc$Repository)
+    } else if (has_remote_repository) {
+      repos <- union(repos, desc$RemoteRepository)
     } else if (has_remote) {
       ref <- sprintf("%s/%s@%s", desc$RemoteUsername, desc$RemoteRepo,
                      desc$RemoteRef)
