@@ -113,7 +113,7 @@ print.conan_compare <- function(x, ..., show_unchanged = FALSE) {
       cli::cli_h2(paste("{n} {nm} {cli::qty(n)}package{?s}"))
       if (nm == "unchanged" && !show_unchanged) {
         cli::cli_alert_info(
-          "To show unchanged packages, print with 'show_changed = TRUE'")
+          "To show unchanged packages, print with 'show_unchanged = TRUE'")
       } else {
         cli::cli_li(x$changes[[nm]])
       }
