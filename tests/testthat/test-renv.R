@@ -34,5 +34,22 @@ test_that("accept project if it's in current or parent directory", {
   mock_project <- mockery::mock(path, dirname(path))
   mockery::stub(using_renv, "renv::project", mock_project)
   expect_true(using_renv(path))
-  expect_true(using_renv(path))
+  expect_false(using_renv(path))
+})
+
+
+test_that("can compute hash of renv lockfile", {
+  path <- withr::local_tempdir()
+  writeLines("x", file.path(path, "renv.lock"))
+  expect_equal(renv_hash(path), rlang::hash_file(file.path(path, "renv.lock")))
+})
+
+
+test_that("warn if no lockfile found", {
+  path <- withr::local_tempdir()
+  expect_warning(
+    res <- renv_hash(path),
+    "Did not find lockfile")
+  expect_match(res, "^[[:xdigit:]]{32}$")
+  expect_false(suppressWarnings(renv_hash(path)) == res)
 })

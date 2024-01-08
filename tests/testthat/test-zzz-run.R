@@ -13,10 +13,21 @@ test_that("can run a script-based installation", {
   d <- readRDS(dir(file.path(path, "lib", ".conan"), full.names = TRUE))
 
   expect_equal(d$method, "script")
+  expect_equal(d$hash, rlang::hash_file(file.path(path, "provision.R")))
+  expect_equal(d$hash, cfg$hash)
   expect_equal(d$args$script, "provision.R")
   expect_false(d$args$delete_first)
   expect_s3_class(d$description, "conan_describe")
   expect_true("R6" %in% names(d$description$packages))
+
+  h <- cfg$hash
+  d <- conan_list(file.path(path, path_lib))
+  expect_equal(d$hash, h)
+  expect_null(d$current)
+
+  d <- conan_list(file.path(path, path_lib), h)
+  expect_equal(d$hash, h)
+  expect_true(d$current)
 })
 
 
@@ -35,6 +46,7 @@ test_that("can run a pkgdepends-based installation", {
   d <- readRDS(dir(file.path(path, "lib", ".conan"), full.names = TRUE))
 
   expect_equal(d$method, "pkgdepends")
+  expect_equal(d$hash, cfg$hash)
   expect_mapequal(d$args$pkgdepends, list(refs = "R6", repos = NULL))
   expect_s3_class(d$description, "conan_describe")
   expect_true("R6" %in% names(d$description$packages))
@@ -58,6 +70,7 @@ test_that("can run an automatic installation", {
   d <- readRDS(dir(file.path(path, "lib", ".conan"), full.names = TRUE))
 
   expect_equal(d$method, "auto")
+  expect_equal(d$hash, cfg$hash)
   expect_equal(d$args$pkgdepends$refs, "R6") # repos may differ
   expect_true(d$args$delete_first)
   expect_s3_class(d$description, "conan_describe")
@@ -79,6 +92,7 @@ test_that("can run an renv installation", {
   path_bootstrap <- bootstrap_library("renv")
   cfg <- conan_configure("renv", path = path, path_lib = path_lib,
                          path_bootstrap = path_bootstrap)
+  expect_equal(cfg$hash, rlang::hash_file(file.path(path, "renv.lock")))
   withr::with_dir(path, conan_run(cfg, show_log = FALSE))
 
   expect_true(file.exists(file.path(path, "lib", "R6")))
@@ -89,6 +103,7 @@ test_that("can run an renv installation", {
   d <- readRDS(dir(file.path(path, "lib", ".conan"), full.names = TRUE))
 
   expect_equal(d$method, "renv")
+  expect_equal(d$hash, cfg$hash)
   expect_s3_class(d$description, "conan_describe")
   expect_true(all(c("R6", "renv") %in% names(d$description$packages)))
 })

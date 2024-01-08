@@ -1,45 +1,3 @@
-test_that("can list conan installations", {
-  path <- withr::local_tempdir()
-  nms <- example_installations(path)
-
-  res <- evaluate_promise(withVisible(conan_list_installations(path)))
-  expect_equal(res$result, list(value = nms, visible = FALSE))
-
-  msg <- res$messages
-  expect_length(msg, 6)
-  expect_match(msg[[1]], "5 conan installations recorded")
-  expect_match(msg[[2]], sprintf("1: %s \\(.+ago\\) \\[-4\\]", nms[[1]]))
-  expect_match(msg[[6]], sprintf("5: %s \\(.+ago\\) \\[0\\]", nms[[5]]))
-})
-
-
-test_that("can list conan installations when only one present", {
-  path <- withr::local_tempdir()
-  nms <- example_installations(path, 1)
-
-  res <- evaluate_promise(withVisible(conan_list_installations(path)))
-  expect_equal(res$result, list(value = nms, visible = FALSE))
-
-  msg <- res$messages
-  expect_length(msg, 2)
-  expect_match(msg[[1]], "1 conan installation recorded")
-  expect_match(msg[[2]], sprintf("1: %s \\(.+ago\\) \\[0\\]", nms[[1]]))
-})
-
-
-test_that("can list conan installations when none are present", {
-  path <- withr::local_tempdir()
-  nms <- example_installations(path, 0)
-
-  res <- evaluate_promise(withVisible(conan_list_installations(path)))
-  expect_equal(res$result, list(value = character(), visible = FALSE))
-
-  msg <- res$messages
-  expect_length(msg, 1)
-  expect_match(msg[[1]], "No conan installations recorded")
-})
-
-
 test_that("can select sensible comparisons by index", {
   nms <- c("a", "b", "c", "d", "e")
 
@@ -232,8 +190,7 @@ test_that("can print simple comparison", {
   msg <- msg[msg != "\n"] # work around theming issues
   expect_match(msg[[1]], "Comparing conan installations")
   expect_match(msg[[2]], "(empty installation)", fixed = TRUE)
-  expect_match(msg[[3]], "20240105110353 1st; current installation",
-               fixed = TRUE)
+  expect_match(msg[[3]], "[0-9]{14} 1st; current installation")
   expect_match(msg[[4]], "1 added package")
   expect_match(msg[[5]], "R6 (2.5.1) CRAN", fixed = TRUE)
 })
@@ -246,10 +203,8 @@ test_that("can print complex comparison", {
   msg <- capture_messages(print(conan_compare(path)))
   msg <- msg[msg != "\n"] # work around theming issues
   expect_match(msg[[1]], "Comparing conan installations")
-  expect_match(msg[[2]], "20240105110415 4th; previous installation",
-               fixed = TRUE)
-  expect_match(msg[[3]], "20240105110419 5th; current installation",
-               fixed = TRUE)
+  expect_match(msg[[2]], "[0-9]{14} 4th; previous installation")
+  expect_match(msg[[3]], "[0-9]{14} 5th; current installation")
   expect_match(msg[[4]], "4 unchanged packages")
   expect_match(msg[[5]], "To show unchanged packages, print with",
                fixed = TRUE)
@@ -265,10 +220,8 @@ test_that("can print long comparison", {
   nms <- example_installations(path)
   msg <- capture_messages(print(conan_compare(path, prev = -4)))
   expect_match(msg[[1]], "Comparing conan installations")
-  expect_match(msg[[2]], "20240105110353 1st; 4 installations ago",
-               fixed = TRUE)
-  expect_match(msg[[3]], "20240105110419 5th; current installation",
-               fixed = TRUE)
+  expect_match(msg[[2]], "[0-9]{14} 1st; 4 installations ago")
+  expect_match(msg[[3]], "[0-9]{14} 5th; current installation")
 })
 
 

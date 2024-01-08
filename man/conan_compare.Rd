@@ -7,17 +7,17 @@
 conan_compare(path_lib, curr = 0, prev = -1)
 }
 \arguments{
-\item{path_lib}{The library that conan has installed into}
+\item{path_lib}{Path to the library to compare}
 
 \item{curr}{The previous installation to compare against. Can be a
-name (see \link{conan_list_installations} to get names), a negative
+name (see \link{conan_list} to get names), a negative
 number where \code{-n} indicates "\code{n} installations ago" or a
 positive number where \code{n} indicates "the \code{n}th
 installation". The default value of 0 corresponds to the current
 installation.}
 
 \item{prev}{The previous installation to compare against. Can be a
-name (see \link{conan_list_installations} to get names), a negative
+name (see \link{conan_list} to get names), a negative
 number where \code{-n} indicates "\code{n} installations ago" or a
 positive number where \code{n} indicates "the \code{n}th installation".
 The default of -1 indicates the previous installation. Must
