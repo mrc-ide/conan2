@@ -8,7 +8,7 @@
 ##' * method `pkgdepends` supports the arguments `refs`, which can be
 ##'   a character vector of references (rather than reading from the
 ##'   file `pkgdepends.txt`) and `policy` which is passed through to
-##'   [pkgdepends::new_pkg_installation_proposal].
+##'   [`pkgdepends::new_pkg_installation_proposal()`].
 ##' * method `auto` takes an argument `environment` which contains a
 ##'   list of packages to install and source files to scan for
 ##'   dependencies.
@@ -16,8 +16,8 @@
 ##'
 ##' @title Configuration for conan
 ##'
-##' @param method The method to use; currently "script",
-##'   "pkgdepends", "auto" and "renv" are supported.
+##' @param method The method to use; currently `script`,
+##'   `pkgdepends`, `auto` and `renv` are supported.
 ##'
 ##' @param ... Additional arguments, method specific. See Details.
 ##'
@@ -26,8 +26,9 @@
 ##'
 ##' @param path_bootstrap The path to a bootstrap library to use. This
 ##'   needs to contain all the packages required for the method you
-##'   are using. For "script" this is just "remotes", but for
-##'   "pkgdepends" it'll be more.
+##'   are using. For `script` this is just `remotes`, but for
+##'   `pkgdepends` it must contain the full recursive dependencies of
+##'   `pkgdepends`.
 ##'
 ##' @param delete_first Should we delete the library before installing
 ##'   into it?

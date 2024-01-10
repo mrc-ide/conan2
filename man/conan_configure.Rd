@@ -14,8 +14,8 @@ conan_configure(
 )
 }
 \arguments{
-\item{method}{The method to use; currently "script",
-"pkgdepends", "auto" and "renv" are supported.}
+\item{method}{The method to use; currently \code{script},
+\code{pkgdepends}, \code{auto} and \code{renv} are supported.}
 
 \item{...}{Additional arguments, method specific. See Details.}
 
@@ -24,8 +24,9 @@ or a relative path.}
 
 \item{path_bootstrap}{The path to a bootstrap library to use. This
 needs to contain all the packages required for the method you
-are using. For "script" this is just "remotes", but for
-"pkgdepends" it'll be more.}
+are using. For \code{script} this is just \code{remotes}, but for
+\code{pkgdepends} it must contain the full recursive dependencies of
+\code{pkgdepends}.}
 
 \item{delete_first}{Should we delete the library before installing
 into it?}
@@ -50,7 +51,7 @@ name of the script to run, defaults to "provision.R"
 \item method \code{pkgdepends} supports the arguments \code{refs}, which can be
 a character vector of references (rather than reading from the
 file \code{pkgdepends.txt}) and \code{policy} which is passed through to
-\link[pkgdepends:pkg_installation_proposal]{pkgdepends::new_pkg_installation_proposal}.
+\code{\link[pkgdepends:pkg_installation_proposal]{pkgdepends::new_pkg_installation_proposal()}}.
 \item method \code{auto} takes an argument \code{environment} which contains a
 list of packages to install and source files to scan for
 dependencies.

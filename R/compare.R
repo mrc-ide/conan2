@@ -16,7 +16,7 @@
 ##'   number where `-n` indicates "`n` installations ago" or a
 ##'   positive number where `n` indicates "the `n`th installation".
 ##'   The default of -1 indicates the previous installation. Must
-##'   refer to an installation before `curr`. Use `NULL` or -Inf` if
+##'   refer to an installation before `curr`. Use `NULL` or `-Inf` if
 ##'   you want to compare against the empty installation.
 ##'
 ##' @return An object of class `conan_compare`, which can be printed
