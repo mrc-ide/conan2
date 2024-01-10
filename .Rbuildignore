@@ -24,3 +24,4 @@
 ^script$
 ^lib$
 ^TODO.md$
+^_pkgdown\.yml$

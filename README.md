@@ -1,12 +1,14 @@
 # conan <img src="man/figures/logo.gif" align="right" />
 
 <!-- badges: start -->
-[![Project Status: Concept – Minimal or no implementation has been done yet, or the repository is only intended to be a limited example, demo, or proof-of-concept.](https://www.repostatus.org/badges/latest/concept.svg)](https://www.repostatus.org/#concept)
+[![Project Status: WIP – Initial development is in progress, but there has not yet been a stable, usable release suitable for the public.](https://www.repostatus.org/badges/latest/wip.svg)](https://www.repostatus.org/#wip)
 [![R-CMD-check](https://github.com/mrc-ide/conan/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/mrc-ide/conan/actions/workflows/R-CMD-check.yaml)
 [![codecov.io](https://codecov.io/github/mrc-ide/conan/coverage.svg?branch=main)](https://app.codecov.io/github/mrc-ide/conan?branch=main)
 <!-- badges: end -->
 
 > For us, there is no spring. Just the wind that smells fresh before the storm
+
+*This package is temporary, a clean reimplementation of [`conan`](https://github.com/mrc-ide/conan) and will merge back into that package when we complete the transition from [`didehpc`](https://mrc-ide.github.io/didehpc) to [`hipercow`](https://mrc-ide.github.io/hipercow). It is safe to install alongside `conan`*
 
 ## What is this?
 
@@ -20,7 +22,7 @@ Things start getting creaky though:
 
 Our needs in an HPC/HTC context are slightly different again:
 
-* it is not safe to start multiple package installations in parallel, e.g., in an HPC setting; we need a system where installation can be reliably performed on a single job, then used by all the
+* it is not safe to start multiple package installations in parallel, e.g., in an HPC setting; we need a system where installation can be reliably performed on a single job, then used by all the tasks that you launch, knowing that they won't be modified.
 * we want a system to reliably reconstruct a library of packages on a remote machine, based on the set that the user has installed locally, and do this in a way that does not accidentally trigger installation at the point where the user has launched 1,000 jobs in parallel.
 * we need to use libraries that are user-, project-, and machine- scoped; so if the user has two different projects they are isolated, if the user's local machine is a Mac but the remote machine is Linux they use different packages, and that different users don't interact
 
