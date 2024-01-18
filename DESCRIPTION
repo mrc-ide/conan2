@@ -22,6 +22,7 @@ Imports:
 Suggests:
     callr,
     mockery,
+    openssl,
     pkgdepends,
     remotes,
     renv,

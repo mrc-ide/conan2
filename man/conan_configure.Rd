@@ -11,7 +11,8 @@ conan_configure(
   path_bootstrap,
   cran = NULL,
   delete_first = FALSE,
-  path = "."
+  path = ".",
+  envvars = NULL
 )
 }
 \arguments{
@@ -43,6 +44,9 @@ into it?}
 \item{path}{Path to the root where you would run conan from;
 typically this is the same path is the root of the project,
 often as the working directory.}
+
+\item{envvars}{Environment variables to set before running the
+installation.  See Details for format.}
 }
 \value{
 A list with class \code{conan_config}. Do not modify
@@ -66,4 +70,16 @@ list of packages to install and source files to scan for
 dependencies.
 \item method \code{renv} takes no arguments.
 }
+
+Setting environment variables while running the installation comes
+uses the \code{envvars} argument; this system is designed to play well
+with \code{hipercow}, though it does not require it.  We expect a
+\code{data.frame} with columns \code{name}, \code{value} and (optionally)
+\code{secret}.  If \code{secret} is given, it must be a logical value
+indicating that \code{value} has been encrypted with an \code{rsa} public
+key.  If any \code{secret} is \code{TRUE}, then \code{envvvars} must also have an
+\emph{attribute} \code{key} that contains the path to private rsa key to
+decrypt the secrets (i.e., \code{attr(envvars, "key")}).  If you use
+secret environment variables, then the \code{openssl} package must be
+present in conan's bootstrap.
 }

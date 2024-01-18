@@ -60,3 +60,45 @@ test_that("can run an installation", {
   expect_equal(dirname(args$stdout), dirname(args[[1]]))
   expect_true(file.exists(dirname(args$stdout)))
 })
+
+
+test_that("can generate code to set environment variables", {
+  withr::defer(Sys.unsetenv(c("CONAN_A", "CONAN_B")))
+  envvars <- data.frame(name = c("CONAN_A", "CONAN_B"),
+                        value = c("x", "y"),
+                        secret = FALSE)
+  expect_equal(
+    generate_set_envvars(envvars),
+    "  Sys.setenv(\"CONAN_A\" = \"x\")\n  Sys.setenv(\"CONAN_B\" = \"y\")")
+
+  code <- generate_set_envvars(envvars)
+  tmp <- withr::local_tempfile()
+  writeLines(code, tmp)
+  env <- new.env()
+  sys.source(tmp, env)
+  expect_equal(names(env), character())
+  expect_equal(Sys.getenv("CONAN_A"), "x")
+  expect_equal(Sys.getenv("CONAN_B"), "y")
+})
+
+
+test_that("can generate code to set secret environment variables", {
+  withr::defer(Sys.unsetenv("CONAN_SECRET"))
+  path_key <- withr::local_tempfile()
+  key <- openssl::rsa_keygen()
+  openssl::write_pem(key, path_key)
+  pub <- as.list(key)$pubkey
+  secret <-
+    openssl::base64_encode(openssl::rsa_encrypt(charToRaw("secret"), pub))
+  envvars <- data.frame(name = "CONAN_SECRET", value = secret, secret = TRUE)
+  attr(envvars, "key") <- path_key
+
+  code <- generate_set_envvars(envvars)
+  tmp <- withr::local_tempfile()
+  writeLines(code, tmp)
+  env <- new.env()
+  sys.source(tmp, env)
+  expect_equal(Sys.getenv("CONAN_SECRET"), "secret")
+  expect_equal(names(env), "decrypt")
+  expect_equal(env$decrypt(secret), "secret")
+})
