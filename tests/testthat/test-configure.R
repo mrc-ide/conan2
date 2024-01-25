@@ -10,6 +10,7 @@ test_that("can create basic configuration", {
   expect_equal(cfg$path_bootstrap, "path/bootstrap")
   expect_equal(cfg$hash, rlang::hash_file(file.path(path, "provision.R")))
   expect_false(cfg$delete_first)
+  expect_equal(cfg$cran, "https://cloud.r-project.org")
 })
 
 
@@ -143,4 +144,15 @@ test_that("can fall back on automatic installation", {
     conan_configure("auto", path = path, path_lib = "path/lib",
                     path_bootstrap = "path/bootstrap", environment = env),
     cfg)
+})
+
+
+test_that("can set an alternative repo", {
+  path <- withr::local_tempdir()
+  file.create(file.path(path, "provision.R"))
+  cfg <- suppressMessages(
+    conan_configure(NULL, path = path, path_lib = "path/lib",
+                    path_bootstrap = "path/bootstrap",
+                    cran = "https://cran.example.com"))
+  expect_equal(cfg$cran, "https://cran.example.com")
 })

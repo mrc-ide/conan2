@@ -30,6 +30,15 @@
 ##'   `pkgdepends` it must contain the full recursive dependencies of
 ##'   `pkgdepends`.
 ##'
+##' @param cran URL for use as the CRAN repo. If not given we will use
+##'   the RStudio CRAN mirror.  This option has no effect when using
+##'   renv, as the URLs in your lock file determine the locations that
+##'   packages are fetched from.  The intended use of this option is
+##'   for where a CRAN repo is misbehaving (e.g., returning 500
+##'   errors, or has an invalid/incomplete/out of date index).  The
+##'   most likely alternative version to use is `cran =
+##'   "https://cran.r-project.org"`
+##'
 ##' @param delete_first Should we delete the library before installing
 ##'   into it?
 ##'
@@ -41,7 +50,7 @@
 ##'   this object.
 ##'
 ##' @export
-conan_configure <- function(method, ..., path_lib, path_bootstrap,
+conan_configure <- function(method, ..., path_lib, path_bootstrap, cran = NULL,
                             delete_first = FALSE, path = ".") {
   if (is.null(method)) {
     method <- detect_method(path, call = rlang::current_env())
@@ -50,6 +59,11 @@ conan_configure <- function(method, ..., path_lib, path_bootstrap,
 
   args <- list(...)
   assert_scalar_character(method)
+  if (is.null(cran)) {
+    cran <- "https://cloud.r-project.org"
+  } else {
+    assert_scalar_character(cran)
+  }
 
   if (method == "script") {
     valid_args <- "script"
@@ -114,6 +128,7 @@ conan_configure <- function(method, ..., path_lib, path_bootstrap,
   args$path_lib <- path_lib
   args$path_bootstrap <- assert_scalar_character(path_bootstrap)
   args$delete_first <- assert_scalar_logical(delete_first)
+  args$cran <- cran
 
   class(args) <- "conan_config"
 

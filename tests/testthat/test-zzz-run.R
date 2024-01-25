@@ -1,4 +1,5 @@
 test_that("can run a script-based installation", {
+  testthat::skip_if_offline()
   path <- withr::local_tempdir()
   writeLines('install.packages("R6")', file.path(path, "provision.R"))
   path_lib <- "lib"
@@ -32,6 +33,7 @@ test_that("can run a script-based installation", {
 
 
 test_that("can run a pkgdepends-based installation", {
+  testthat::skip_if_offline()
   path <- withr::local_tempdir()
   writeLines("R6", file.path(path, "pkgdepends.txt"))
   path_lib <- "lib"
@@ -54,6 +56,7 @@ test_that("can run a pkgdepends-based installation", {
 
 
 test_that("can run an automatic installation", {
+  testthat::skip_if_offline()
   path <- withr::local_tempdir()
   environment <- list(packages = "R6")
   path_lib <- "lib"
@@ -79,6 +82,7 @@ test_that("can run an automatic installation", {
 
 
 test_that("can run an renv installation", {
+  testthat::skip_if_offline()
   path <- withr::local_tempdir()
   writeLines("library(R6)", file.path(path, "code.R"))
   res <- withr::with_dir(path, callr::r(function() {

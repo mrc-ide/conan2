@@ -70,16 +70,15 @@ conan_write <- function(config, path) {
 
 template_data <- function(config) {
   ret <- config
-  default_repo <- "https://cloud.r-project.org"
   ret$hash <- config$hash
   ret$args_str <- list_to_str(
     config[setdiff(names(config), c("method", "hash"))])
   if (config$method == "script") {
-    ret$repos <- vector_to_str(default_repo)
+    ret$repos <- vector_to_str(config$cran)
     ret$preload <- vector_to_str("remotes")
     ret$what <- sprintf("your installation script '%s'", config$script)
   } else if (config$method %in% c("pkgdepends", "auto")) {
-    ret$repos <- vector_to_str(c(config$pkgdepends$repos, default_repo))
+    ret$repos <- vector_to_str(c(config$pkgdepends$repos, config$cran))
     ret$refs <- vector_to_str(config$pkgdepends$refs)
     ret$preload <- vector_to_str(
       c("ps", "cli", "curl", "filelock", "pkgdepends", "pkgcache",
