@@ -12,7 +12,7 @@ specific to different provisioning methods."><meta property="og:image" content="
     
     <a class="navbar-brand me-2" href="../index.html">conan2</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.9.97</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.9.98</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -56,6 +56,7 @@ specific to different provisioning methods.</p>
 <span>  <span class="va">...</span>,</span>
 <span>  <span class="va">path_lib</span>,</span>
 <span>  <span class="va">path_bootstrap</span>,</span>
+<span>  cran <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  delete_first <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  path <span class="op">=</span> <span class="st">"."</span></span>
 <span><span class="op">)</span></span></code></pre></div>
@@ -83,6 +84,16 @@ needs to contain all the packages required for the method you
 are using. For <code>script</code> this is just <code>remotes</code>, but for
 <code>pkgdepends</code> it must contain the full recursive dependencies of
 <code>pkgdepends</code>.</p></dd>
+
+
+<dt>cran</dt>
+<dd><p>URL for use as the CRAN repo. If not given we will use
+the RStudio CRAN mirror.  This option has no effect when using
+renv, as the URLs in your lock file determine the locations that
+packages are fetched from.  The intended use of this option is
+for where a CRAN repo is misbehaving (e.g., returning 500
+errors, or has an invalid/incomplete/out of date index).  The
+most likely alternative version to use is <code>cran = "https://cran.r-project.org"</code></p></dd>
 
 
 <dt>delete_first</dt>
