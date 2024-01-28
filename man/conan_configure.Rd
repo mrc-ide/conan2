@@ -9,6 +9,7 @@ conan_configure(
   ...,
   path_lib,
   path_bootstrap,
+  cran = NULL,
   delete_first = FALSE,
   path = "."
 )
@@ -27,6 +28,14 @@ needs to contain all the packages required for the method you
 are using. For \code{script} this is just \code{remotes}, but for
 \code{pkgdepends} it must contain the full recursive dependencies of
 \code{pkgdepends}.}
+
+\item{cran}{URL for use as the CRAN repo. If not given we will use
+the RStudio CRAN mirror.  This option has no effect when using
+renv, as the URLs in your lock file determine the locations that
+packages are fetched from.  The intended use of this option is
+for where a CRAN repo is misbehaving (e.g., returning 500
+errors, or has an invalid/incomplete/out of date index).  The
+most likely alternative version to use is \code{cran = "https://cran.r-project.org"}}
 
 \item{delete_first}{Should we delete the library before installing
 into it?}

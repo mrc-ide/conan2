@@ -25,7 +25,8 @@ test_that("can write out pkgdepends script based on configuration", {
   path <- withr::local_tempdir()
   writeLines("foo", file.path(path, "pkgdepends.txt"))
   cfg <- conan_configure(NULL, path = path, path_lib = "path/lib",
-                         path_bootstrap = "path/bootstrap")
+                         path_bootstrap = "path/bootstrap",
+                         cran = "https://cran.example.com")
   dest <- file.path(path, "tmp", "script.R")
   conan_write(cfg, dest)
   expect_true(file.exists(dest))
@@ -34,7 +35,7 @@ test_that("can write out pkgdepends script based on configuration", {
   expect_setequal(setdiff(names(dat), names(cfg)),
                   c("repos", "refs", "preload", "what", "args_str",
                     "conan_describe_definition"))
-  expect_equal(dat$repos, vector_to_str("https://cloud.r-project.org"))
+  expect_equal(dat$repos, vector_to_str("https://cran.example.com"))
   expect_equal(dat$refs, vector_to_str("foo"))
   expect_equal(dat$what, "pkgdepends")
   expect_equal(dat$hash, cfg$hash)
