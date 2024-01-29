@@ -87,7 +87,7 @@ template_data <- function(config) {
         "pkgbuild", "callr", preload))
     ret$what <- "pkgdepends"
   } else if (config$method == "renv") {
-    ret$preload <- vector_to_str("renv", preload)
+    ret$preload <- vector_to_str(c("renv", preload))
     ret$what <- "renv"
   }
   ret$conan_describe_definition <- deparse_fn("conan_describe", indent = 2)
