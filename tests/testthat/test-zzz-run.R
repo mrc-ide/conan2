@@ -113,7 +113,7 @@ test_that("can run an renv installation", {
 })
 
 
-## This test requires a the TEST_CONAN_GITHUB_TOKEN to exist, and
+## This test requires the TEST_CONAN_GITHUB_TOKEN to exist, and
 ## installs a trivial private package with it; you need access to
 ## reside-ic/ to run this test.
 test_that("can install a private package", {
