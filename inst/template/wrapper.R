@@ -25,6 +25,8 @@ local({
     }
   }
 
+{{set_envvars}}
+
   if ({{delete_first}}) {
     message()
     message("Deleting previous library; this will fail if packages are in use")

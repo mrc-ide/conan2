@@ -73,9 +73,10 @@ template_data <- function(config) {
   ret$hash <- config$hash
   ret$args_str <- list_to_str(
     config[setdiff(names(config), c("method", "hash"))])
+  preload <- if (any(config$envvars$secret)) "openssl" else NULL
   if (config$method == "script") {
     ret$repos <- vector_to_str(config$cran)
-    ret$preload <- vector_to_str("remotes")
+    ret$preload <- vector_to_str(c("remotes", preload))
     ret$what <- sprintf("your installation script '%s'", config$script)
   } else if (config$method %in% c("pkgdepends", "auto")) {
     ret$repos <- vector_to_str(c(config$pkgdepends$repos, config$cran))
@@ -83,12 +84,40 @@ template_data <- function(config) {
     ret$preload <- vector_to_str(
       c("ps", "cli", "curl", "filelock", "pkgdepends", "pkgcache",
         "processx", "lpSolve", "jsonlite", "withr", "desc", "zip",
-        "pkgbuild", "callr"))
+        "pkgbuild", "callr", preload))
     ret$what <- "pkgdepends"
   } else if (config$method == "renv") {
-    ret$preload <- vector_to_str("renv")
+    ret$preload <- vector_to_str(c("renv", preload))
     ret$what <- "renv"
   }
   ret$conan_describe_definition <- deparse_fn("conan_describe", indent = 2)
+  ret$set_envvars <- generate_set_envvars(config$envvars)
   ret
+}
+
+
+generate_set_envvars <- function(envvars) {
+  if (is.null(envvars) || nrow(envvars) == 0) {
+    return("")
+  }
+  f <- function(name, value, secret) {
+    if (secret) {
+      sprintf('Sys.setenv("%s" = decrypt("%s"))', name, value)
+    } else {
+      sprintf('Sys.setenv("%s" = "%s")', name, value)
+    }
+  }
+  if (any(envvars$secret)) {
+    key <- gsub("\\", "/", attr(envvars, "key", exact = TRUE), fixed = TRUE)
+    decrypt <- c(
+      "decrypt <- function(value) {",
+      "  rawToChar(openssl::rsa_decrypt(openssl::base64_decode(value),",
+      sprintf('                                 "%s"))', key),
+      "}")
+  } else {
+    decrypt <- NULL
+  }
+
+  ret <- Map(f, envvars$name, envvars$value, envvars$secret)
+  paste0("  ", c(decrypt, vcapply(ret, identity)), collapse = "\n")
 }

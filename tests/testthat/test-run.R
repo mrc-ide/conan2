@@ -10,7 +10,7 @@ test_that("can write out script based on configuration", {
   dat <- template_data(cfg)
   expect_setequal(setdiff(names(dat), names(cfg)),
                   c("repos", "preload", "what", "args_str",
-                    "conan_describe_definition"))
+                    "conan_describe_definition", "set_envvars"))
   expect_equal(dat$repos, vector_to_str("https://cloud.r-project.org"))
   expect_equal(dat$preload, vector_to_str("remotes"))
   expect_equal(dat$what, "your installation script 'provision.R'")
@@ -18,6 +18,7 @@ test_that("can write out script based on configuration", {
   expect_equal(dat$hash, cfg$hash)
   expect_equal(dat$args_str,
                list_to_str(cfg[setdiff(names(cfg), c("method", "hash"))]))
+  expect_equal(dat$set_envvars, "")
 })
 
 
@@ -34,7 +35,7 @@ test_that("can write out pkgdepends script based on configuration", {
   dat <- template_data(cfg)
   expect_setequal(setdiff(names(dat), names(cfg)),
                   c("repos", "refs", "preload", "what", "args_str",
-                    "conan_describe_definition"))
+                    "conan_describe_definition", "set_envvars"))
   expect_equal(dat$repos, vector_to_str("https://cran.example.com"))
   expect_equal(dat$refs, vector_to_str("foo"))
   expect_equal(dat$what, "pkgdepends")
@@ -59,4 +60,46 @@ test_that("can run an installation", {
   expect_true(args$show)
   expect_equal(dirname(args$stdout), dirname(args[[1]]))
   expect_true(file.exists(dirname(args$stdout)))
+})
+
+
+test_that("can generate code to set environment variables", {
+  withr::defer(Sys.unsetenv(c("CONAN_A", "CONAN_B")))
+  envvars <- data.frame(name = c("CONAN_A", "CONAN_B"),
+                        value = c("x", "y"),
+                        secret = FALSE)
+  expect_equal(
+    generate_set_envvars(envvars),
+    "  Sys.setenv(\"CONAN_A\" = \"x\")\n  Sys.setenv(\"CONAN_B\" = \"y\")")
+
+  code <- generate_set_envvars(envvars)
+  tmp <- withr::local_tempfile()
+  writeLines(code, tmp)
+  env <- new.env()
+  sys.source(tmp, env)
+  expect_equal(names(env), character())
+  expect_equal(Sys.getenv("CONAN_A"), "x")
+  expect_equal(Sys.getenv("CONAN_B"), "y")
+})
+
+
+test_that("can generate code to set secret environment variables", {
+  withr::defer(Sys.unsetenv("CONAN_SECRET"))
+  path_key <- withr::local_tempfile()
+  key <- openssl::rsa_keygen()
+  openssl::write_pem(key, path_key)
+  pub <- as.list(key)$pubkey
+  secret <-
+    openssl::base64_encode(openssl::rsa_encrypt(charToRaw("secret"), pub))
+  envvars <- data.frame(name = "CONAN_SECRET", value = secret, secret = TRUE)
+  attr(envvars, "key") <- path_key
+
+  code <- generate_set_envvars(envvars)
+  tmp <- withr::local_tempfile()
+  writeLines(code, tmp)
+  env <- new.env()
+  sys.source(tmp, env)
+  expect_equal(Sys.getenv("CONAN_SECRET"), "secret")
+  expect_equal(names(env), "decrypt")
+  expect_equal(env$decrypt(secret), "secret")
 })

@@ -156,3 +156,48 @@ test_that("can set an alternative repo", {
                     cran = "https://cran.example.com"))
   expect_equal(cfg$cran, "https://cran.example.com")
 })
+
+
+test_that("can validate environment variables", {
+  expect_null(check_envvars(NULL))
+  expect_error(check_envvars(c("A" = "x")),
+               "Expected 'envvars' to be a data.frame")
+  expect_error(check_envvars(data.frame(nm = "A", vl = "x")),
+               "Missing columns from 'envvars': 'name' and 'value'")
+  expect_error(check_envvars(data.frame(name = "A", vl = "x")),
+               "Missing column from 'envvars': 'value'")
+
+  expect_equal(
+    check_envvars(data.frame(name = "A", value = "x")),
+    data.frame(name = "A", value = "x", secret = FALSE))
+  expect_equal(
+    check_envvars(data.frame(name = c("A", "B"), value = c("x", "y"))),
+    data.frame(name = c("A", "B"), value = c("x", "y"), secret = FALSE))
+
+  d <- data.frame(name = c("A", "B"), value = c("x", "y"),
+                  secret = c(TRUE, FALSE))
+  expect_error(
+    check_envvars(d),
+    "Secret environment variables in 'envvars', but key not found")
+  attr(d, "key") <- "/path/to/key"
+  expect_equal(check_envvars(d), d)
+})
+
+
+test_that("can create configuration with envars", {
+  path <- withr::local_tempdir()
+  envvars <- data.frame(name = c("ENV_A", "ENV_B"),
+                        value = c("val_a", "val_b"))
+  file.create(file.path(path, "provision.R"))
+  cfg <- conan_configure(NULL, path = path, path_lib = "path/lib",
+                         path_bootstrap = "path/bootstrap",
+                         envvars = envvars)
+  expect_s3_class(cfg, "conan_config")
+  expect_equal(cfg$script, "provision.R")
+  expect_equal(cfg$method, "script")
+  expect_equal(cfg$path_lib, "path/lib")
+  expect_equal(cfg$path_bootstrap, "path/bootstrap")
+  expect_equal(cfg$hash, rlang::hash_file(file.path(path, "provision.R")))
+  expect_false(cfg$delete_first)
+  expect_equal(cfg$envvars, cbind(envvars, secret = FALSE))
+})

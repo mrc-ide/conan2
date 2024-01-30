@@ -14,6 +14,18 @@
 ##'   dependencies.
 ##' * method `renv` takes no arguments.
 ##'
+##' Setting environment variables while running the installation comes
+##' via the `envvars` argument; this system is designed to play well
+##' with `hipercow`, though it does not require it.  We expect a
+##' `data.frame` with columns `name`, `value` and (optionally)
+##' `secret`.  If `secret` is given, it must be a logical value
+##' indicating that `value` has been encrypted with an `rsa` public
+##' key.  If any `secret` is `TRUE`, then `envvvars` must also have an
+##' *attribute* `key` that contains the path to private rsa key to
+##' decrypt the secrets (i.e., `attr(envvars, "key")`).  If you use
+##' secret environment variables, then the `openssl` package must be
+##' present in conan's bootstrap.
+##'
 ##' @title Configuration for conan
 ##'
 ##' @param method The method to use; currently `script`,
@@ -46,12 +58,15 @@
 ##'   typically this is the same path is the root of the project,
 ##'   often as the working directory.
 ##'
+##' @param envvars Environment variables to set before running the
+##'   installation.  See Details for format.
+##'
 ##' @return A list with class `conan_config`. Do not modify
 ##'   this object.
 ##'
 ##' @export
 conan_configure <- function(method, ..., path_lib, path_bootstrap, cran = NULL,
-                            delete_first = FALSE, path = ".") {
+                            delete_first = FALSE, path = ".", envvars = NULL) {
   if (is.null(method)) {
     method <- detect_method(path, call = rlang::current_env())
     cli::cli_alert_success("Selected provisioning method '{method}'")
@@ -129,6 +144,7 @@ conan_configure <- function(method, ..., path_lib, path_bootstrap, cran = NULL,
   args$path_bootstrap <- assert_scalar_character(path_bootstrap)
   args$delete_first <- assert_scalar_logical(delete_first)
   args$cran <- cran
+  args$envvars <- check_envvars(envvars)
 
   class(args) <- "conan_config"
 
@@ -146,4 +162,30 @@ detect_method <- function(path, call = NULL) {
   } else {
     "auto"
   }
+}
+
+
+## Practically we won't see this from hipercow, but we might reuse
+## this in twinkle.  We probably need a nice way of creating one of
+## these too.
+check_envvars <- function(envvars) {
+  if (is.null(envvars)) {
+    return(NULL)
+  }
+  if (!inherits(envvars, "data.frame")) {
+    cli::cli_abort("Expected 'envvars' to be a data.frame")
+  }
+  msg <- setdiff(c("name", "value"), names(envvars))
+  if (length(msg) > 0) {
+    cli::cli_abort("Missing column{?s} from 'envvars': {squote(msg)}")
+  }
+  if (is.null(envvars$secret)) {
+    envvars$secret <- FALSE
+  }
+  key <- attr(envvars, "key", exact = TRUE)
+  if (any(envvars$secret) && is.null(key)) {
+    cli::cli_abort(
+      "Secret environment variables in 'envvars', but key not found")
+  }
+  envvars
 }

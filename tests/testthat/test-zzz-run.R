@@ -111,3 +111,45 @@ test_that("can run an renv installation", {
   expect_s3_class(d$description, "conan_describe")
   expect_true(all(c("R6", "renv") %in% names(d$description$packages)))
 })
+
+
+## This test requires the TEST_CONAN_GITHUB_TOKEN to exist, and
+## installs a trivial private package with it; you need access to
+## reside-ic/ to run this test.
+test_that("can install a private package", {
+  pat <- Sys.getenv("TEST_CONAN_GITHUB_TOKEN", NA)
+  if (is.na(pat)) {
+    testthat::skip("TEST_CONAN_GITHUB_TOKEN not found")
+  }
+  withr::local_envvar(GITHUB_TOKEN = NA, GITHUB_PAT = NA)
+
+  path <- withr::local_tempdir()
+  writeLines("reside-ic/secretsquirrel", file.path(path, "pkgdepends.txt"))
+  path_key <- withr::local_tempfile()
+  key <- openssl::rsa_keygen()
+  openssl::write_pem(key, path_key)
+  pub <- as.list(key)$pubkey
+  pat <- openssl::base64_encode(openssl::rsa_encrypt(charToRaw(pat), pub))
+  envvars <- data.frame(name = "GITHUB_TOKEN", value = pat, secret = TRUE)
+  attr(envvars, "key") <- path_key
+
+  path_lib <- "lib"
+  path_bootstrap <- bootstrap_library("pkgdepends")
+  cfg <- conan_configure(NULL, path = path, path_lib = path_lib,
+                         path_bootstrap = path_bootstrap, envvars = envvars)
+
+  withr::with_dir(path, conan_run(cfg, show_log = FALSE))
+
+  expect_true(file.exists(file.path(path, "lib", "secretsquirrel")))
+
+  expect_true(file.exists(file.path(path, "lib", ".conan")))
+  expect_length(dir(file.path(path, "lib", ".conan")), 1)
+  d <- readRDS(dir(file.path(path, "lib", ".conan"), full.names = TRUE))
+
+  expect_equal(d$method, "pkgdepends")
+  expect_equal(d$hash, cfg$hash)
+  expect_mapequal(d$args$pkgdepends,
+                  list(refs = "reside-ic/secretsquirrel", repos = NULL))
+  expect_s3_class(d$description, "conan_describe")
+  expect_true("secretsquirrel" %in% names(d$description$packages))
+})
