@@ -15,7 +15,7 @@
 ##' * method `renv` takes no arguments.
 ##'
 ##' Setting environment variables while running the installation comes
-##' uses the `envvars` argument; this system is designed to play well
+##' via the `envvars` argument; this system is designed to play well
 ##' with `hipercow`, though it does not require it.  We expect a
 ##' `data.frame` with columns `name`, `value` and (optionally)
 ##' `secret`.  If `secret` is given, it must be a logical value
