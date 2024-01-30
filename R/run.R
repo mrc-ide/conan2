@@ -108,7 +108,7 @@ generate_set_envvars <- function(envvars) {
     }
   }
   if (any(envvars$secret)) {
-    key <- sub("\\", "/", attr(envvars, "key", exact = TRUE), fixed = TRUE)
+    key <- gsub("\\", "/", attr(envvars, "key", exact = TRUE), fixed = TRUE)
     decrypt <- c(
       "decrypt <- function(value) {",
       "  rawToChar(openssl::rsa_decrypt(openssl::base64_decode(value),",
