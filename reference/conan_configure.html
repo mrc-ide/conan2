@@ -12,7 +12,7 @@ specific to different provisioning methods."><meta property="og:image" content="
     
     <a class="navbar-brand me-2" href="../index.html">conan2</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.9.98</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.9.99</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -58,7 +58,8 @@ specific to different provisioning methods.</p>
 <span>  <span class="va">path_bootstrap</span>,</span>
 <span>  cran <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  delete_first <span class="op">=</span> <span class="cn">FALSE</span>,</span>
-<span>  path <span class="op">=</span> <span class="st">"."</span></span>
+<span>  path <span class="op">=</span> <span class="st">"."</span>,</span>
+<span>  envvars <span class="op">=</span> <span class="cn">NULL</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -106,6 +107,11 @@ into it?</p></dd>
 typically this is the same path is the root of the project,
 often as the working directory.</p></dd>
 
+
+<dt>envvars</dt>
+<dd><p>Environment variables to set before running the
+installation.  See Details for format.</p></dd>
+
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
@@ -126,7 +132,18 @@ file <code>pkgdepends.txt</code>) and <code>policy</code> which is passed throug
 list of packages to install and source files to scan for
 dependencies.</p></li>
 <li><p>method <code>renv</code> takes no arguments.</p></li>
-</ul></div>
+</ul><p>Setting environment variables while running the installation comes
+uses the <code>envvars</code> argument; this system is designed to play well
+with <code>hipercow</code>, though it does not require it.  We expect a
+<code>data.frame</code> with columns <code>name</code>, <code>value</code> and (optionally)
+<code>secret</code>.  If <code>secret</code> is given, it must be a logical value
+indicating that <code>value</code> has been encrypted with an <code>rsa</code> public
+key.  If any <code>secret</code> is <code>TRUE</code>, then <code>envvvars</code> must also have an
+<em>attribute</em> <code>key</code> that contains the path to private rsa key to
+decrypt the secrets (i.e., <code>attr(envvars, "key")</code>).  If you use
+secret environment variables, then the <code>openssl</code> package must be
+present in conan's bootstrap.</p>
+    </div>
 
   </main><aside class="col-md-3"><nav id="toc"><h2>On this page</h2>
     </nav></aside></div>
