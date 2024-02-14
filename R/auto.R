@@ -9,7 +9,7 @@ build_pkgdepends_auto <- function(environment, path_root, verbose) {
 
   if (length(packages) == 0) {
     cli::cli_abort(
-      "I could work out anything to install automatically",
+      "I could not work out anything to install automatically",
       i = paste("Your environment does not list any packages, so I have",
                 "nothing to install; this is probably not what you want!"))
   }
