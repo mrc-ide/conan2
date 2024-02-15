@@ -11,7 +11,7 @@ test_that("can build a very straightforward case", {
          repos = character()))
   expect_error(
     build_pkgdepends_auto(list(), path),
-    "I could work out anything to install automatically")
+    "I could not work out anything to install automatically")
 })
 
 

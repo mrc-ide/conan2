@@ -55,7 +55,7 @@ test_that("error if desired provisioning method unclear", {
   expect_error(
     conan_configure(NULL, path = path, path_lib = "path/lib",
                     path_bootstrap = "path/bootstrap"),
-    "I could work out anything to install automatically")
+    "I could not work out anything to install automatically")
 })
 
 
