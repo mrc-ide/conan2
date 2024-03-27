@@ -18,8 +18,16 @@ conan_file <- function(path) {
 }
 
 
+read_lines <- function(path) {
+  ## never warn about trailing newlines.  Unfortunately this will also
+  ## not warn about embedded null's but that's rare and also usually
+  ## not a very helpful warning for users to see.
+  readLines(path, warn = FALSE)
+}
+
+
 read_string <- function(path) {
-  paste(readLines(path), collapse = "\n")
+  paste(read_lines(path), collapse = "\n")
 }
 
 

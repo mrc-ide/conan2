@@ -27,3 +27,11 @@ test_that("can convert numbers to ordinals", {
   expect_equal(ordinal(24), "24th")
   expect_equal(ordinal(43221), "43221st")
 })
+
+
+test_that("don't warn when reading from files without newlines", {
+  path <- withr::local_tempfile()
+  writeLines("hello", sep = "", path)
+  expect_warning(readLines(path))
+  expect_no_warning(read_lines(path))
+})
