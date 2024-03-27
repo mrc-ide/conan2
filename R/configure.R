@@ -123,7 +123,7 @@ conan_configure <- function(method, ..., path_lib, path_bootstrap, cran = NULL,
         cli::cli_abort(
           "Expected a file 'pkgdepends.txt' to exist at path '{path}'")
       }
-      refs <- readLines(path_pkgdepends)
+      refs <- read_lines(path_pkgdepends)
     } else {
       refs <- args$refs
     }
