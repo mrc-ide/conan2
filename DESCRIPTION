@@ -18,7 +18,8 @@ Imports:
     fs,
     glue,
     prettyunits,
-    rlang
+    rlang,
+    withr
 Suggests:
     callr,
     mockery,
@@ -26,6 +27,5 @@ Suggests:
     pkgdepends,
     remotes,
     renv,
-    testthat,
-    withr
+    testthat
 Language: en-GB
