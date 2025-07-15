@@ -92,7 +92,7 @@ conan_configure <- function(method, ..., path_lib, path_bootstrap, cran = NULL,
     valid_args <- c("refs", "policy")
     args$policy <- args$policy %||% "lazy"
     if (!is.null(args$refs)) {
-      assert_scalar_character(args$refs, "refs", call = rlang::current_env())
+      assert_character(args$refs, "refs", call = rlang::current_env())
     }
     assert_scalar_character(args$policy, "policy", call = rlang::current_env())
   } else if (method == "renv") {
