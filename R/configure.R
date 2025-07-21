@@ -98,7 +98,9 @@ conan_configure <- function(method, ..., path_lib, path_bootstrap, cran = NULL,
       assert_scalar_character(args$filename, "filename", call = call)
     }
     if (is.null(args$refs)) {
-      args$filename <- "pkgdepends.txt"
+      if (is.null(args$filename)) {
+        args$filename <- "pkgdepends.txt"
+      }
     } else {
       if (!is.null(args$filename)) {
         cli::cli_abort("Don't both 'filename' and 'refs'", call = call)

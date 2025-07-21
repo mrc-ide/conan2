@@ -201,3 +201,28 @@ test_that("can create configuration with envars", {
   expect_false(cfg$delete_first)
   expect_equal(cfg$envvars, cbind(envvars, secret = FALSE))
 })
+
+
+test_that("can use pkgdepends in alternative path", {
+  path <- withr::local_tempdir()
+  writeLines(c("pkg1", "pkg2"), file.path(path, "mypkgs.txt"))
+
+  cfg <- conan_configure("pkgdepends", filename = "mypkgs.txt",
+                         path = path, path_lib = "path/lib",
+                         path_bootstrap = "path/bootstrap")
+  expect_equal(cfg$filename, "mypkgs.txt")
+  expect_mapequal(cfg$pkgdepends, list(refs = c("pkg1", "pkg2"), repos = NULL))
+})
+
+
+test_that("don't specify both refs and filename", {
+  path <- withr::local_tempdir()
+  writeLines(c("pkg1", "pkg2"), file.path(path, "mypkgs.txt"))
+
+  expect_error(
+    conan_configure("pkgdepends", refs = c("pkg1", "pkg2"),
+                    filename = "mypkgs.txt",
+                    path = path, path_lib = "path/lib",
+                    path_bootstrap = "path/bootstrap"),
+    "Don't both 'filename' and 'refs'")
+})
