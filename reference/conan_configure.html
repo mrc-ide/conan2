@@ -9,7 +9,7 @@ specific to different provisioning methods."><meta property="og:image" content="
 
     <a class="navbar-brand me-2" href="../index.html">conan2</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.9.103</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.9.104</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -113,16 +113,18 @@ this object.</p>
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
     <p>Different methods support different additional arguments:</p><ul><li><p>method <code>script</code> supports the argument <code>script</code>, which is the
 name of the script to run, defaults to "provision.R"</p></li>
-<li><p>method <code>pkgdepends</code> supports the arguments <code>refs</code>, which can be
-a character vector of references (rather than reading from the
-file <code>pkgdepends.txt</code>) and <code>policy</code> which is passed through to
+<li><p>method <code>pkgdepends</code> supports the arguments <code>filename</code>, which can
+be a filename to the input data,<code>refs</code>, which can be a character
+vector of references (rather than reading from the file
+<code>pkgdepends.txt</code> or the file referred to by <code>filename</code>),
+<code>policy</code> which is passed through to
 <code><a href="https://r-lib.github.io/pkgdepends/reference/pkg_installation_proposal.html" class="external-link">pkgdepends::new_pkg_installation_proposal()</a></code>.</p></li>
 <li><p>method <code>auto</code> takes an argument <code>environment</code> which contains a
 list of packages to install and source files to scan for
 dependencies.</p></li>
 <li><p>method <code>renv</code> takes no arguments.</p></li>
 </ul><p>Setting environment variables while running the installation comes
-uses the <code>envvars</code> argument; this system is designed to play well
+via the <code>envvars</code> argument; this system is designed to play well
 with <code>hipercow</code>, though it does not require it.  We expect a
 <code>data.frame</code> with columns <code>name</code>, <code>value</code> and (optionally)
 <code>secret</code>.  If <code>secret</code> is given, it must be a logical value
