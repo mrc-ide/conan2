@@ -61,9 +61,11 @@ Different methods support different additional arguments:
 \itemize{
 \item method \code{script} supports the argument \code{script}, which is the
 name of the script to run, defaults to "provision.R"
-\item method \code{pkgdepends} supports the arguments \code{refs}, which can be
-a character vector of references (rather than reading from the
-file \code{pkgdepends.txt}) and \code{policy} which is passed through to
+\item method \code{pkgdepends} supports the arguments \code{filename}, which can
+be a filename to the input data,\code{refs}, which can be a character
+vector of references (rather than reading from the file
+\code{pkgdepends.txt} or the file referred to by \code{filename}),
+\code{policy} which is passed through to
 \code{\link[pkgdepends:pkg_installation_proposal]{pkgdepends::new_pkg_installation_proposal()}}.
 \item method \code{auto} takes an argument \code{environment} which contains a
 list of packages to install and source files to scan for
@@ -72,7 +74,7 @@ dependencies.
 }
 
 Setting environment variables while running the installation comes
-uses the \code{envvars} argument; this system is designed to play well
+via the \code{envvars} argument; this system is designed to play well
 with \code{hipercow}, though it does not require it.  We expect a
 \code{data.frame} with columns \code{name}, \code{value} and (optionally)
 \code{secret}.  If \code{secret} is given, it must be a logical value

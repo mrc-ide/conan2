@@ -5,9 +5,11 @@
 ##'
 ##' * method `script` supports the argument `script`, which is the
 ##'   name of the script to run, defaults to "provision.R"
-##' * method `pkgdepends` supports the arguments `refs`, which can be
-##'   a character vector of references (rather than reading from the
-##'   file `pkgdepends.txt`) and `policy` which is passed through to
+##' * method `pkgdepends` supports the arguments `filename`, which can
+##'   be a filename to the input data,`refs`, which can be a character
+##'   vector of references (rather than reading from the file
+##'   `pkgdepends.txt` or the file referred to by `filename`),
+##'   `policy` which is passed through to
 ##'   [`pkgdepends::new_pkg_installation_proposal()`].
 ##' * method `auto` takes an argument `environment` which contains a
 ##'   list of packages to install and source files to scan for
@@ -67,8 +69,9 @@
 ##' @export
 conan_configure <- function(method, ..., path_lib, path_bootstrap, cran = NULL,
                             delete_first = FALSE, path = ".", envvars = NULL) {
+  call <- rlang::current_env()
   if (is.null(method)) {
-    method <- detect_method(path, call = rlang::current_env())
+    method <- detect_method(path, call = call)
     cli::cli_alert_success("Selected provisioning method '{method}'")
   }
 
@@ -77,24 +80,32 @@ conan_configure <- function(method, ..., path_lib, path_bootstrap, cran = NULL,
   if (is.null(cran)) {
     cran <- "https://cloud.r-project.org"
   } else {
-    assert_scalar_character(cran)
+    assert_scalar_character(cran, call = call)
   }
 
   if (method == "script") {
     valid_args <- "script"
     args$script <- args$script %||% "provision.R"
-    assert_scalar_character(args$script, "script", call = rlang::current_env())
+    assert_scalar_character(args$script, "script", call = call)
     if (!file.exists(file.path(path, args$script))) {
       cli::cli_abort(
         "provision script '{args$script}' does not exist at path '{path}'")
     }
   } else if (method == "pkgdepends") {
-    valid_args <- c("refs", "policy")
+    valid_args <- c("filename", "refs", "policy")
     args$policy <- args$policy %||% "lazy"
-    if (!is.null(args$refs)) {
-      assert_character(args$refs, "refs", call = rlang::current_env())
+    if (!is.null(args$filename)) {
+      assert_scalar_character(args$filename, "filename", call = call)
     }
-    assert_scalar_character(args$policy, "policy", call = rlang::current_env())
+    if (is.null(args$refs)) {
+      args$filename <- "pkgdepends.txt"
+    } else {
+      if (!is.null(args$filename)) {
+        cli::cli_abort("Don't both 'filename' and 'refs'", call = call)
+      }
+      assert_character(args$refs, "refs", call = call)
+    }
+    assert_scalar_character(args$policy, "policy", call = call)
   } else if (method == "renv") {
     valid_args <- NULL
   } else if (method == "auto") {
@@ -118,10 +129,10 @@ conan_configure <- function(method, ..., path_lib, path_bootstrap, cran = NULL,
 
   if (method == "pkgdepends") {
     if (is.null(args$refs)) {
-      path_pkgdepends <- file.path(path, "pkgdepends.txt")
+      path_pkgdepends <- file.path(path, args$filename)
       if (!file.exists(path_pkgdepends)) {
         cli::cli_abort(
-          "Expected a file 'pkgdepends.txt' to exist at path '{path}'")
+          "Expected a file '{args$filename}' to exist at path '{path}'")
       }
       refs <- read_lines(path_pkgdepends)
     } else {
